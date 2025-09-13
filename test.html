@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator Test</title>
+</head>
+<body>
+    <h1>Age Calculator Function Tests</h1>
+    <div id="testResults"></div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test functions
+        function runTests() {
+            const testResults = document.getElementById('testResults');
+            let results = '<h2>Test Results:</h2>';
+            
+            // Test date parsing
+            const testDate = parseMMDDYYYY('07/04/1990');
+            results += `<p>Date parsing test: ${testDate ? 'PASS' : 'FAIL'}</p>`;
+            
+            // Test age calculation
+            const birthDate = new Date(1990, 6, 4); // July 4, 1990
+            const calculateDate = new Date(2024, 6, 4); // July 4, 2024
+            const age = calculateAge(birthDate, calculateDate);
+            results += `<p>Age calculation test (should be 34 years): ${age.years === 34 ? 'PASS' : 'FAIL'}</p>`;
+            
+            // Test Western Zodiac
+            const zodiac = getWesternZodiac(testDate);
+            results += `<p>Western Zodiac test: ${zodiac.includes('Cancer') ? 'PASS' : 'FAIL'} (${zodiac})</p>`;
+            
+            // Test Chinese Zodiac
+            const chineseZodiac = getChineseZodiac(1990);
+            results += `<p>Chinese Zodiac test: ${chineseZodiac.length > 0 ? 'PASS' : 'FAIL'} (${chineseZodiac})</p>`;
+            
+            // Test Academy Awards
+            const awards = getAcademyAwards(1990);
+            results += `<p>Academy Awards test: ${awards.bestPicture ? 'PASS' : 'FAIL'} (${awards.bestPicture})</p>`;
+            
+            testResults.innerHTML = results;
+        }
+        
+        // Run tests when page loads
+        window.onload = runTests;
+    </script>
+</body>
+</html>

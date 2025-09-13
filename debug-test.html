@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <form id="ageForm">
+        <input type="text" id="birthDate" placeholder="MM/DD/YYYY" value="01/15/1990">
+        <input type="text" id="calculateDate" placeholder="MM/DD/YYYY">
+        <button type="submit">Calculate Age</button>
+    </form>
+    
+    <div id="results" style="display: none;">
+        <div id="ageResult"></div>
+        <div id="westernZodiac"></div>
+        <div id="chineseZodiac"></div>
+        <div id="vietnameseZodiac"></div>
+        <div id="nativeAmericanZodiac"></div>
+        <div id="vedicZodiac"></div>
+        <div id="mayanZodiac"></div>
+        <div id="incanZodiac"></div>
+        <div id="famousPeople"></div>
+        <div id="historicalEvents"></div>
+        <div id="academyAwards"></div>
+    </div>
+
+    <!-- Load Database Files -->
+    <script src="data/famous-people.js"></script>
+    <script src="data/historical-events.js"></script>
+    <script src="data/academy-awards.js"></script>
+    <script src="data/zodiac-info.js"></script>
+    
+    <!-- Load Main Application Script -->
+    <script src="script-with-database-fixed.js"></script>
+    
+    <script>
+        // Add some debug logging
+        console.log('Debug test loaded');
+        
+        window.addEventListener('load', function() {
+            console.log('Window loaded');
+            console.log('FAMOUS_PEOPLE available:', typeof FAMOUS_PEOPLE !== 'undefined');
+            console.log('HISTORICAL_EVENTS available:', typeof HISTORICAL_EVENTS !== 'undefined');
+            console.log('ACADEMY_AWARDS available:', typeof ACADEMY_AWARDS !== 'undefined');
+            console.log('ZODIAC_INFO available:', typeof ZODIAC_INFO !== 'undefined');
+            
+            // Test form element exists
+            const form = document.getElementById('ageForm');
+            console.log('Form element found:', form !== null);
+            
+            // Test if event listener was added
+            if (form) {
+                console.log('Form element exists, should have event listener');
+            }
+        });
+    </script>
+</body>
+</html>

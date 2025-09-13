@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Test</title>
+</head>
+<body>
+    <h1>Minimal Age Calculator Test</h1>
+    
+    <form id="ageForm">
+        <input type="text" id="birthDate" placeholder="MM/DD/YYYY" value="01/15/1990">
+        <button type="submit">Calculate Age</button>
+    </form>
+    
+    <div id="results" style="display: none;">
+        <div id="ageResult">Results will appear here</div>
+    </div>
+
+    <script>
+        // Very basic test script
+        console.log('Script loaded');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            const form = document.getElementById('ageForm');
+            console.log('Form found:', form !== null);
+            
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('Form submitted!');
+                    
+                    const birthDateInput = document.getElementById('birthDate').value;
+                    console.log('Birth date input:', birthDateInput);
+                    
+                    // Simple age calculation
+                    const birthDate = new Date('1990-01-15');
+                    const today = new Date();
+                    const age = today.getFullYear() - birthDate.getFullYear();
+                    
+                    document.getElementById('ageResult').textContent = `You are ${age} years old`;
+                    document.getElementById('results').style.display = 'block';
+                });
+            } else {
+                console.error('Form not found!');
+            }
+        });
+    </script>
+</body>
+</html>
