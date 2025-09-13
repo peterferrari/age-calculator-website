@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator - Discover Your Age & More</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎂 Age Calculator</h1>
+            <p>Discover your exact age and fascinating details about your birth date</p>
+        </header>
+
+        <!-- Disclaimer Section -->
+        <section class="disclaimer-section">
+            <div class="disclaimer-content">
+                <h2>📋 Important Disclaimer</h2>
+                <div class="disclaimer-text">
+                    <h3>For Entertainment Purposes Only:</h3>
+                    <p>This application is intended solely for entertainment and informational purposes. The content provided, including age calculations, zodiac signs, cultural calendar information (such as Chinese, Vietnamese, Mayan, Hindu, Hebrew, and Islamic calendar details), numerology, birthstones, birth flowers, and any associated blurbs or interpretations, should not be taken as factual, professional, or definitive advice.</p>
+                    
+                    <h3>Accuracy of Information:</h3>
+                    <p>While we strive for accuracy, the information presented in this app may occasionally contain errors, omissions, or be based on various interpretations of cultural, astrological, or historical data. We do not guarantee the completeness, reliability, or accuracy of any information provided. Users should exercise their own judgment and discretion.</p>
+                    
+                    <h3>No Warranty Implied:</h3>
+                    <p>This application is provided "as is" without any warranties, express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. The developers and providers of this app shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of your access to, use of, or inability to use the application, even if advised of the possibility of such damages. Your use of this application is solely at your own risk.</p>
+                </div>
+                <button id="disclaimerAccept" class="disclaimer-accept-btn">I Understand - Continue to Calculator</button>
+            </div>
+        </section>
+
+        <main id="mainContent" style="display: none;">
+            <!-- Age Calculator Form -->
+            <section class="calculator-section">
+                <div class="form-container">
+                    <h2>Calculate Your Age</h2>
+                    <form id="ageForm">
+                        <div class="input-group">
+                            <label for="birthDate">Date of Birth (MM/DD/YYYY):</label>
+                            <input type="text" id="birthDate" placeholder="MM/DD/YYYY" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="calculateDate">Calculate Age Up To (MM/DD/YYYY):</label>
+                            <input type="text" id="calculateDate" placeholder="MM/DD/YYYY">
+                            <small>Leave blank to use today's date</small>
+                        </div>
+                        <button type="submit">Calculate Age</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results" class="results-section" style="display: none;">
+                <div class="age-display">
+                    <h2>Your Age</h2>
+                    <div id="ageResult" class="age-result"></div>
+                </div>
+
+                <!-- Zodiac Signs -->
+                <div class="zodiac-section">
+                    <h3>🌟 Your Zodiac Signs</h3>
+                    <p class="zodiac-hint">Click on any zodiac sign to learn more about it!</p>
+                    <div class="zodiac-grid">
+                        <div class="zodiac-card clickable" data-system="western">
+                            <h4>Western Zodiac</h4>
+                            <div id="westernZodiac" class="zodiac-sign"></div>
+                            <small>Click to learn more</small>
+                        </div>
+                        <div class="zodiac-card clickable" data-system="chinese">
+                            <h4>Chinese Zodiac</h4>
+                            <div id="chineseZodiac" class="zodiac-sign"></div>
+                            <small>Click to learn more</small>
+                        </div>
+                        <div class="zodiac-card clickable" data-system="vietnamese">
+                            <h4>Vietnamese Zodiac</h4>
+                            <div id="vietnameseZodiac" class="zodiac-sign"></div>
+                            <small>Click to learn more</small>
+                        </div>
+                        <div class="zodiac-card clickable" data-system="nativeAmerican">
+                            <h4>Native American</h4>
+                            <div id="nativeAmericanZodiac" class="zodiac-sign"></div>
+                            <small>Click to learn more</small>
+                        </div>
+                        <div class="zodiac-card clickable" data-system="vedic">
+                            <h4>Vedic</h4>
+                            <div id="vedicZodiac" class="zodiac-sign"></div>
+                            <small>Click to learn more</small>
+                        </div>
+                        <div class="zodiac-card clickable" data-system="mayan">
+                            <h4>Mayan</h4>
+                            <div id="mayanZodiac" class="zodiac-sign"></div>
+                            <small>Click to learn more</small>
+                        </div>
+                        <div class="zodiac-card clickable" data-system="incan">
+                            <h4>Incan</h4>
+                            <div id="incanZodiac" class="zodiac-sign"></div>
+                            <small>Click to learn more</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Famous People -->
+                <div class="famous-section">
+                    <h3>👥 Famous Person Born on Your Day</h3>
+                    <div id="famousPeople" class="famous-list single-item"></div>
+                    <button id="tryAgainPeople" class="try-again-btn" style="display: none;">🎲 Try Another Famous Person</button>
+                    <p class="refresh-hint">🔄 Get different results by clicking "Try Another" or calculating a different date!</p>
+                </div>
+
+                <!-- Historical Events -->
+                <div class="events-section">
+                    <h3>📅 Historical Event on Your Day</h3>
+                    <div id="historicalEvents" class="events-list single-item"></div>
+                    <button id="tryAgainEvents" class="try-again-btn" style="display: none;">🎲 Try Another Historical Event</button>
+                    <p class="refresh-hint">🔄 Get different results by clicking "Try Another" or calculating a different date!</p>
+                </div>
+
+                <!-- Academy Awards -->
+                <div class="awards-section">
+                    <h3>🏆 Academy Awards in Your Birth Year</h3>
+                    <div id="academyAwards" class="awards-list"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 Age Calculator - For Entertainment Purposes Only</p>
+            <p class="footer-disclaimer">Information sourced from Wikipedia and other public databases. This application is provided "as is" without warranty. Use at your own discretion.</p>
+        </footer>
+    </div>
+
+    <!-- Zodiac Information Modal -->
+    <div id="zodiacModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody">
+                <!-- Modal content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Database Files -->
+    <script src="data/famous-people.js"></script>
+    <script src="data/historical-events.js"></script>
+    <script src="data/academy-awards.js"></script>
+    <script src="data/zodiac-info.js"></script>
+    
+    <!-- Load Main Application Script -->
+    <script src="script-simple.js"></script>
+</body>
+</html>
