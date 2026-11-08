@@ -1,64 +1,3 @@
-/* Disclaimer Section */
-.disclaimer-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-}
-
-.disclaimer-content {
-    background: white;
-    border-radius: 20px;
-    padding: 3rem;
-    max-width: 800px;
-    width: 100%;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.disclaimer-content h2 {
-    color: #4a5568;
-    margin-bottom: 2rem;
-    font-size: 2rem;
-}
-
-.disclaimer-text {
-    text-align: left;
-    margin-bottom: 2rem;
-}
-
-.disclaimer-text h3 {
-    color: #667eea;
-    margin-top: 1.5rem;
-    margin-bottom: 0.8rem;
-    font-size: 1.3rem;
-}
-
-.disclaimer-text p {
-    color: #4a5568;
-    line-height: 1.6;
-    margin-bottom: 1rem;
-}
-
-.disclaimer-accept-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.disclaimer-accept-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-}
-
 .footer-disclaimer {
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.7);
@@ -902,3 +841,526 @@ button[type="submit"]:focus-visible,
         transition: none !important;
     }
 }
+
+
+/* ---------- Header controls, disclaimer ---------- */
+.theme-toggle {
+    margin-top: 1rem;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.theme-toggle:hover { background: rgba(255, 255, 255, 0.28); }
+
+.mini-disclaimer {
+    text-align: center;
+    color: #718096;
+    font-size: 0.85rem;
+    margin: -0.75rem 0 1.5rem;
+}
+
+.mini-disclaimer a { color: #667eea; }
+
+.remember-note {
+    text-align: center;
+    margin-top: 0.75rem;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: #667eea;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.full-disclaimer {
+    max-width: 800px;
+    margin: 1rem auto 0;
+    text-align: left;
+    font-size: 0.85rem;
+}
+
+.full-disclaimer summary {
+    cursor: pointer;
+    text-align: center;
+    text-decoration: underline;
+}
+
+.full-disclaimer h3 {
+    font-size: 0.95rem;
+    margin: 1rem 0 0.25rem;
+}
+
+.full-disclaimer p { line-height: 1.5; }
+
+/* ---------- Birthday banner and ticker ---------- */
+.birthday-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, #f6ad55, #ed64a6);
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 800;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    animation: pop 0.6s ease;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.ticker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 2px dashed #b794f4;
+    border-radius: 12px;
+    color: #4a5568;
+}
+
+.ticker-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #667eea;
+    font-variant-numeric: tabular-nums;
+}
+
+.ticker-note,
+.fine-print {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-top: 0.5rem;
+}
+
+.confetti-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2000;
+}
+
+/* ---------- Shared fun-section styles ---------- */
+.fun-section {
+    margin-bottom: 2rem;
+}
+
+.fun-section h3 {
+    color: #4a5568;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.fun-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.fun-card {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-left: 4px solid #667eea;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.fun-card h4 {
+    color: #4a5568;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.stat-list {
+    list-style: none;
+}
+
+.stat-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.stat-list li:last-child { border-bottom: none; }
+
+.stat-label { color: #718096; }
+
+.stat-value {
+    color: #2d3748;
+    font-weight: 600;
+    text-align: right;
+}
+
+.action-btn,
+.mini-btn,
+.choice-btn {
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+}
+
+.action-btn.secondary {
+    background: #edf2f7;
+    color: #4a5568;
+}
+
+.action-btn:hover,
+.choice-btn:not(:disabled):hover,
+.mini-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.mini-btn {
+    background: #e9d8fd;
+    color: #553c9a;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.action-btn:focus-visible,
+.mini-btn:focus-visible,
+.choice-btn:focus-visible,
+.theme-toggle:focus-visible,
+.link-btn:focus-visible {
+    outline: 3px solid #f6ad55;
+    outline-offset: 2px;
+}
+
+/* ---------- Share ---------- */
+.share-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+#shareCanvas {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.share-actions {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    color: #4a5568;
+}
+
+/* ---------- Milestones ---------- */
+.milestone-list {
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.milestone-list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-left: 4px solid #48bb78;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+}
+
+.milestone-list li.past {
+    border-left-color: #a0aec0;
+    opacity: 0.8;
+}
+
+.milestone-label {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.milestone-date {
+    color: #718096;
+    flex: 1;
+}
+
+/* ---------- Planets ---------- */
+.planet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.planet {
+    text-align: center;
+    background: radial-gradient(circle at 30% 20%, #4c51bf, #1a202c);
+    color: #fff;
+    border-radius: 12px;
+    padding: 1rem 0.75rem;
+}
+
+.planet-name { font-weight: 600; }
+
+.planet-age {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0.25rem 0;
+}
+
+.planet-unit,
+.planet-next {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+.planet-next { margin-top: 0.4rem; }
+
+/* ---------- Compare ---------- */
+.compare-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0 1rem;
+    align-items: end;
+}
+
+.compare-form .action-btn { margin-bottom: 1.5rem; }
+
+.compare-headline {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.75rem;
+}
+
+.compat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0 0.5rem;
+}
+
+.compat-label {
+    color: #4a5568;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.compat-bar {
+    flex: 1;
+    height: 14px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.compat-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ed64a6, #667eea);
+    border-radius: 999px;
+}
+
+.compat-score {
+    font-weight: 800;
+    color: #667eea;
+}
+
+.compat-notes {
+    margin-left: 1.25rem;
+    color: #4a5568;
+}
+
+/* ---------- Games ---------- */
+.game-question {
+    color: #2d3748;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.game-date {
+    color: #667eea;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+}
+
+.choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.choice-btn {
+    background: #fff;
+    color: #2d3748;
+    border: 2px solid #cbd5e0;
+    padding: 0.6rem;
+    font-size: 0.95rem;
+}
+
+.choice-btn:disabled { cursor: default; }
+.choice-btn.correct { border-color: #38a169; background: #c6f6d5; color: #22543d; }
+.choice-btn.wrong { border-color: #e53e3e; background: #fed7d7; color: #742a2a; }
+
+.game-feedback {
+    min-height: 1.5em;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.game-score {
+    color: #718096;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .compare-form { grid-template-columns: 1fr; }
+    .ticker-value { font-size: 1.5rem; }
+    .birthday-banner { font-size: 1.3rem; }
+}
+
+/* ---------- Dark mode ---------- */
+:root[data-theme="dark"] body {
+    background: linear-gradient(135deg, #1a1c3a 0%, #2d1b3d 100%);
+    color: #e2e8f0;
+}
+
+:root[data-theme="dark"] .calculator-section,
+:root[data-theme="dark"] .results-section,
+:root[data-theme="dark"] .modal-content {
+    background: #1e2233;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="dark"] .zodiac-card,
+:root[data-theme="dark"] .famous-list,
+:root[data-theme="dark"] .events-list,
+:root[data-theme="dark"] .awards-list,
+:root[data-theme="dark"] .fun-card,
+:root[data-theme="dark"] .milestone-list li {
+    background: #2a2f45;
+}
+
+:root[data-theme="dark"] .famous-list.single-item,
+:root[data-theme="dark"] .events-list.single-item {
+    background: #24304d;
+}
+
+:root[data-theme="dark"] .famous-list.single-item li,
+:root[data-theme="dark"] .events-list.single-item li {
+    color: #90cdf4;
+}
+
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] .form-container h2,
+:root[data-theme="dark"] .input-group label,
+:root[data-theme="dark"] .fun-section h3,
+:root[data-theme="dark"] .zodiac-section h3,
+:root[data-theme="dark"] .famous-section h3,
+:root[data-theme="dark"] .events-section h3,
+:root[data-theme="dark"] .awards-section h3,
+:root[data-theme="dark"] .age-display h2,
+:root[data-theme="dark"] .zodiac-card h4,
+:root[data-theme="dark"] .fun-card h4,
+:root[data-theme="dark"] #modalBody h2,
+:root[data-theme="dark"] #modalBody h3 {
+    color: #e2e8f0;
+}
+
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] li,
+:root[data-theme="dark"] .stat-value,
+:root[data-theme="dark"] .milestone-label,
+:root[data-theme="dark"] .game-question,
+:root[data-theme="dark"] .game-feedback,
+:root[data-theme="dark"] .compare-headline,
+:root[data-theme="dark"] .compat-label,
+:root[data-theme="dark"] .zodiac-card .zodiac-sign span,
+:root[data-theme="dark"] #modalBody p,
+:root[data-theme="dark"] .famous-list li,
+:root[data-theme="dark"] .events-list li,
+:root[data-theme="dark"] .awards-list li,
+:root[data-theme="dark"] .share-actions,
+:root[data-theme="dark"] .ticker {
+    color: #cbd5e0;
+}
+
+:root[data-theme="dark"] .zodiac-card .zodiac-sign,
+:root[data-theme="dark"] .ticker-value,
+:root[data-theme="dark"] .compat-score,
+:root[data-theme="dark"] .modal-system {
+    color: #a3bffa;
+}
+
+:root[data-theme="dark"] .stat-label,
+:root[data-theme="dark"] .milestone-date,
+:root[data-theme="dark"] .fine-print,
+:root[data-theme="dark"] .ticker-note,
+:root[data-theme="dark"] .zodiac-hint,
+:root[data-theme="dark"] .mini-disclaimer,
+:root[data-theme="dark"] .input-group small,
+:root[data-theme="dark"] .awards-note,
+:root[data-theme="dark"] .modal-meta,
+:root[data-theme="dark"] .zodiac-card small {
+    color: #a0aec0;
+}
+
+:root[data-theme="dark"] .stat-list li,
+:root[data-theme="dark"] .famous-list li,
+:root[data-theme="dark"] .events-list li,
+:root[data-theme="dark"] .awards-list li {
+    border-bottom-color: #3a4160;
+}
+
+:root[data-theme="dark"] .input-group input {
+    background: #141827;
+    border-color: #3a4160;
+    color: #e2e8f0;
+}
+
+:root[data-theme="dark"] .choice-btn {
+    background: #141827;
+    border-color: #3a4160;
+    color: #e2e8f0;
+}
+
+:root[data-theme="dark"] .choice-btn.correct { background: #22543d; border-color: #48bb78; color: #f0fff4; }
+:root[data-theme="dark"] .choice-btn.wrong { background: #742a2a; border-color: #fc8181; color: #fff5f5; }
+:root[data-theme="dark"] .action-btn.secondary { background: #2a2f45; color: #e2e8f0; }
+:root[data-theme="dark"] .compat-bar { background: #3a4160; }
+:root[data-theme="dark"] .mini-disclaimer a,
+:root[data-theme="dark"] .link-btn { color: #a3bffa; }
+:root[data-theme="dark"] .error { background: #4a1d1d; color: #feb2b2; }
+:root[data-theme="dark"] .footer-disclaimer,
+:root[data-theme="dark"] footer p { color: rgba(255, 255, 255, 0.75); }
+:root[data-theme="dark"] .full-disclaimer h3 { color: #e2e8f0; }

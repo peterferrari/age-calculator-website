@@ -13,31 +13,15 @@
         <header>
             <h1>🎂 Age Calculator</h1>
             <p>Discover your exact age and fascinating details about your birth date</p>
+            <button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false">🌙 Dark mode</button>
         </header>
 
-        <!-- Disclaimer Section -->
-        <section id="disclaimer" class="disclaimer-section">
-            <div class="disclaimer-content">
-                <h2>📋 Important Disclaimer</h2>
-                <div class="disclaimer-text">
-                    <h3>For Entertainment Purposes Only:</h3>
-                    <p>This application is intended solely for entertainment and informational purposes. The content provided, including age calculations, zodiac signs, cultural calendar information (such as Chinese, Vietnamese, Mayan, Hindu, Hebrew, and Islamic calendar details), numerology, birthstones, birth flowers, and any associated blurbs or interpretations, should not be taken as factual, professional, or definitive advice.</p>
-                    
-                    <h3>Accuracy of Information:</h3>
-                    <p>While we strive for accuracy, the information presented in this app may occasionally contain errors, omissions, or be based on various interpretations of cultural, astrological, or historical data. We do not guarantee the completeness, reliability, or accuracy of any information provided. Users should exercise their own judgment and discretion.</p>
-                    
-                    <h3>No Warranty Implied:</h3>
-                    <p>This application is provided "as is" without any warranties, express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. The developers and providers of this app shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of your access to, use of, or inability to use the application, even if advised of the possibility of such damages. Your use of this application is solely at your own risk.</p>
-                </div>
-                <button id="disclaimerAccept" class="disclaimer-accept-btn">I Understand - Continue to Calculator</button>
-            </div>
-        </section>
-
-        <main id="mainContent" hidden>
+        <main id="mainContent">
             <!-- Age Calculator Form -->
             <section class="calculator-section">
                 <div class="form-container">
                     <h2>Calculate Your Age</h2>
+                    <p class="mini-disclaimer">For entertainment only. Zodiac and trivia content may contain errors. <a href="#fullDisclaimer">Full disclaimer</a></p>
                     <form id="ageForm" novalidate>
                         <div class="input-group">
                             <label for="birthDate">Date of Birth (MM/DD/YYYY):</label>
@@ -50,6 +34,7 @@
                         </div>
                         <div id="formError" class="error" role="alert" hidden></div>
                         <button type="submit">Calculate Age</button>
+                        <p class="remember-note"><button type="button" id="forgetMe" class="link-btn" hidden>Forget my birthday on this device</button></p>
                     </form>
                 </div>
             </section>
@@ -58,7 +43,30 @@
             <section id="results" class="results-section" hidden aria-live="polite">
                 <div class="age-display">
                     <h2>Your Age</h2>
+                    <div id="birthdayBanner" class="birthday-banner" hidden></div>
                     <div id="ageResult" class="age-result"></div>
+                    <div id="liveTicker" class="ticker" aria-live="off" hidden></div>
+                </div>
+
+                <!-- Share card -->
+                <div class="fun-section share-section">
+                    <h3>📸 Share Your Results</h3>
+                    <div class="share-layout">
+                        <canvas id="shareCanvas" width="1080" height="1080" role="img" aria-label="Shareable image with your age and signs"></canvas>
+                        <div class="share-actions">
+                            <p>Save a picture of your results to post or send to friends.</p>
+                            <button type="button" id="downloadCard" class="action-btn">⬇️ Download image</button>
+                            <button type="button" id="shareCard" class="action-btn">📤 Share</button>
+                            <button type="button" id="copyText" class="action-btn secondary">📋 Copy as text</button>
+                            <p id="shareStatus" class="fine-print" role="status"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milestones -->
+                <div class="fun-section">
+                    <h3>🎯 Your Milestones</h3>
+                    <div id="milestones"></div>
                 </div>
 
                 <!-- Zodiac Signs -->
@@ -104,6 +112,24 @@
                     </div>
                 </div>
 
+                <!-- Planets -->
+                <div class="fun-section">
+                    <h3>🪐 Your Age on Other Planets</h3>
+                    <div id="planetAges" class="planet-grid"></div>
+                </div>
+
+                <!-- Body and animals -->
+                <div class="fun-section">
+                    <h3>🧬 You in Numbers</h3>
+                    <div id="bodyStats" class="fun-grid"></div>
+                </div>
+
+                <!-- The world when you were born -->
+                <div class="fun-section">
+                    <h3 id="worldHeading">🕰️ The World When You Were Born</h3>
+                    <div id="worldThen" class="fun-grid"></div>
+                </div>
+
                 <!-- Famous People -->
                 <div class="famous-section">
                     <h3>👥 Famous Person Born on Your Day</h3>
@@ -123,12 +149,57 @@
                     <h3 id="awardsHeading">🏆 Oscar Winners from Your Birth Year</h3>
                     <div id="academyAwards" class="awards-list"></div>
                 </div>
+
+                <!-- Compare with a friend -->
+                <div class="fun-section">
+                    <h3>👯 Compare With a Friend</h3>
+                    <form id="compareForm" class="compare-form" novalidate>
+                        <div class="input-group">
+                            <label for="friendName">Friend's name (optional)</label>
+                            <input type="text" id="friendName" placeholder="Alex" maxlength="40" autocomplete="off">
+                        </div>
+                        <div class="input-group">
+                            <label for="friendDate">Friend's birthday (MM/DD/YYYY)</label>
+                            <input type="text" id="friendDate" placeholder="MM/DD/YYYY" inputmode="numeric" maxlength="10" autocomplete="off">
+                        </div>
+                        <button type="submit" class="action-btn">Compare</button>
+                    </form>
+                    <div id="compareResult" aria-live="polite"></div>
+                </div>
+
+                <!-- Games -->
+                <div class="fun-section">
+                    <h3>🎮 Games</h3>
+                    <div class="fun-grid">
+                        <div class="fun-card">
+                            <h4>🎂 Birthday Twins</h4>
+                            <div id="twinsGame"></div>
+                        </div>
+                        <div class="fun-card">
+                            <h4>📜 Guess the Year</h4>
+                            <div id="yearGame"></div>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
 
         <footer>
             <p>© <span id="footerYear">2026</span> Age Calculator - For Entertainment Purposes Only</p>
             <p class="footer-disclaimer">Information sourced from Wikipedia and other public databases. This application is provided "as is" without warranty. Use at your own discretion.</p>
+            <details id="fullDisclaimer" class="full-disclaimer">
+                <summary>Full disclaimer</summary>
+                <div class="disclaimer-text">
+                    <h3>For Entertainment Purposes Only:</h3>
+                    <p>This application is intended solely for entertainment and informational purposes. The content provided, including age calculations, zodiac signs, cultural calendar information (such as Chinese, Vietnamese, Mayan, Hindu, Hebrew, and Islamic calendar details), numerology, birthstones, birth flowers, and any associated blurbs or interpretations, should not be taken as factual, professional, or definitive advice.</p>
+                    
+                    <h3>Accuracy of Information:</h3>
+                    <p>While we strive for accuracy, the information presented in this app may occasionally contain errors, omissions, or be based on various interpretations of cultural, astrological, or historical data. We do not guarantee the completeness, reliability, or accuracy of any information provided. Users should exercise their own judgment and discretion.</p>
+                    
+                    <h3>No Warranty Implied:</h3>
+                    <p>This application is provided "as is" without any warranties, express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. The developers and providers of this app shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of your access to, use of, or inability to use the application, even if advised of the possibility of such damages. Your use of this application is solely at your own risk.</p>
+                </div>
+            </details>
         </footer>
     </div>
 
@@ -147,8 +218,11 @@
     <script src="data/historical-events.js"></script>
     <script src="data/academy-awards.js"></script>
     <script src="data/zodiac-info.js"></script>
+    <script src="data/zodiac-info-extra.js"></script>
+    <script src="data/birth-year.js"></script>
     
     <!-- Load Main Application Script -->
     <script src="script.js"></script>
+    <script src="fun.js"></script>
 </body>
 </html>

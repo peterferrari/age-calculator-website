@@ -312,8 +312,7 @@
     }
 
     // ---------- Rendering ----------
-    function renderAge(birth, to, isToday) {
-        const age = calculateAge(birth, to, isToday);
+    function renderAge(birth, to, isToday, age) {
         const box = $('ageResult');
         box.replaceChildren(
             el('div', { className: 'age-main' }, [
@@ -339,17 +338,20 @@
     }
 
     function renderZodiac(birth) {
+        const signs = {};
         document.querySelectorAll('.zodiac-card').forEach(card => {
             const system = card.dataset.system;
             const result = ZODIAC_SYSTEMS[system].fn(birth);
             card.dataset.key = result.key;
             card.dataset.infoSystem = result.infoSystem || system;
             card.dataset.title = result.title;
+            signs[system] = result;
             card.querySelector('.zodiac-sign').replaceChildren(
                 el('strong', {}, [result.title]),
                 ...result.lines.map(line => el('span', {}, [line]))
             );
         });
+        return signs;
     }
 
     function renderSingle(containerId, buttonId, dbName, avoid, emptyText) {
@@ -395,15 +397,17 @@
 
     function displayResults(birth, to, isToday) {
         current = { birthDate: birth, lastPerson: null, lastEvent: null };
-        renderAge(birth, to, isToday);
-        renderZodiac(birth);
+        const age = calculateAge(birth, to, isToday);
+        renderAge(birth, to, isToday, age);
+        const signs = renderZodiac(birth);
         renderPeople();
         renderEvents();
         renderAwards(birth.getFullYear());
 
         const results = $('results');
         results.hidden = false;
-        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Let fun.js (and anything else) add its sections.
+        document.dispatchEvent(new CustomEvent('agecalc:results', { detail: { birth, to, isToday, age, signs } }));
     }
 
     // ---------- Zodiac modal ----------
@@ -472,9 +476,23 @@
     }
 
     // ---------- Init ----------
-    function showCalculator() {
-        $('disclaimer').hidden = true;
-        $('mainContent').hidden = false;
+    // ---------- Theme ----------
+    function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        const btn = $('themeToggle');
+        btn.textContent = theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode';
+        btn.setAttribute('aria-pressed', String(theme === 'dark'));
+    }
+
+    function initTheme() {
+        const saved = storage.get('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+        $('themeToggle').addEventListener('click', () => {
+            const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+            storage.set('theme', next);
+            applyTheme(next);
+        });
     }
 
     function handleSubmit(e) {
@@ -497,18 +515,16 @@
                 : 'The birth date is after the “calculate up to” date.');
         }
 
+        storage.set('lastBirthDate', birthRaw.trim());
+        $('forgetMe').hidden = false;
         displayResults(birth, to, isToday);
+        if (!(e.detail && e.detail.silent)) $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         $('footerYear').textContent = new Date().getFullYear();
 
-        if (storage.get('disclaimerAccepted') === 'true') showCalculator();
-        $('disclaimerAccept').addEventListener('click', () => {
-            storage.set('disclaimerAccepted', 'true');
-            showCalculator();
-            $('birthDate').focus();
-        });
+        initTheme();
 
         autoFormatDate($('birthDate'));
         autoFormatDate($('calculateDate'));
@@ -527,10 +543,27 @@
         modal.querySelector('.close').addEventListener('click', closeZodiacModal);
         modal.addEventListener('click', e => { if (e.target === modal) closeZodiacModal(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeZodiacModal(); });
+
+        // Remember the last birthday on this device and show it straight away.
+        $('forgetMe').addEventListener('click', () => {
+            storage.set('lastBirthDate', '');
+            $('birthDate').value = '';
+            $('calculateDate').value = '';
+            $('forgetMe').hidden = true;
+            $('results').hidden = true;
+            document.dispatchEvent(new CustomEvent('agecalc:cleared'));
+            $('birthDate').focus();
+        });
+        const saved = storage.get('lastBirthDate');
+        if (saved && parseMMDDYYYY(saved)) {
+            $('birthDate').value = saved;
+            handleSubmit({ preventDefault() {}, detail: { silent: true } });
+        }
     });
 
     // Exposed for testing from the console.
     window.AgeCalc = {
+        clampedDate, dayDiff, startOfToday, autoFormatDate, formatDate, plural, el, storage, getDatabase, ZODIAC_SYSTEMS,
         parseMMDDYYYY, calculateAge, nextBirthday, getWesternZodiac, getChineseZodiac,
         getVietnameseZodiac, getNativeAmericanZodiac, getVedicZodiac, getMayanZodiac, getIncanZodiac
     };

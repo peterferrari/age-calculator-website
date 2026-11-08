@@ -24,6 +24,18 @@ A modern, interactive web application that calculates your precise age and provi
 - **Historical Events**: A random event that happened on your birthday
 - **Academy Awards**: Best Picture, Actor and Actress winners for films released in your birth year
 
+### Fun Extras
+- **Live ticker**: your age in seconds, counting up in real time
+- **Milestones**: when you hit 10,000 days, 1 billion seconds, 2,000 weeks and more, each with an "add to calendar" button
+- **Birthday confetti** when you calculate on your birthday
+- **Share card**: download or share an image of your results, or copy them as text
+- **Your age on other planets**, with your next birthday on each
+- **You in numbers**: heartbeats, breaths, time asleep, dog years and other animal lifetimes
+- **The world when you were born**: song of the year, biggest film, prices, minimum wage, world population, people born since, and the moon phase that night
+- **Compare with a friend**: who's older and by how much, combined age and a just-for-fun compatibility score
+- **Games**: Birthday Twins (which famous person with your birthday is closest to your age?) and Guess the Year
+- **Dark mode**, and your last birthday is remembered on your device (with a "forget" button)
+
 ## Usage
 
 1. Enter your birth date in MM/DD/YYYY format
@@ -44,7 +56,8 @@ A modern, interactive web application that calculates your precise age and provi
 - `index.html` - Page structure
 - `styles.css` - Styling
 - `script.js` - Age math, zodiac logic and rendering
-- `data/` - Databases for famous people, historical events, Academy Awards and zodiac details
+- `fun.js` - The fun extras above
+- `data/` - Databases for famous people, historical events, Academy Awards, zodiac details (`zodiac-info-extra.js` fills the gaps) and birth-year facts (`birth-year.js`)
 - `archive/` - Older versions and test pages, kept for reference (not used by the site)
 
 To run it, open `index.html` in a browser, or serve the folder (`python3 -m http.server`).
