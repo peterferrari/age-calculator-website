@@ -334,7 +334,7 @@ const ZODIAC_INFO = {
             },
             totem: "Deer - represents gentleness, grace, and sensitivity",
             season: "Early Summer - time of communication and growth"
-        }
+        },
         "Woodpecker": {
             dates: "June 21 - July 21",
             element: "Water",

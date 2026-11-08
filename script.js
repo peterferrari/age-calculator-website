@@ -1,358 +1,537 @@
-// Age Calculator JavaScript
+// Age Calculator
+// Plain browser script. Data comes from the globals defined in data/*.js:
+// FAMOUS_PEOPLE, HISTORICAL_EVENTS, ACADEMY_AWARDS, ZODIAC_INFO.
 
-// Date format validation and parsing
-function parseMMDDYYYY(dateString) {
-    const regex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-    const match = dateString.match(regex);
-    
-    if (!match) return null;
-    
-    const month = parseInt(match[1], 10);
-    const day = parseInt(match[2], 10);
-    const year = parseInt(match[3], 10);
-    
-    // Validate ranges
-    if (month < 1 || month > 12) return null;
-    if (day < 1 || day > 31) return null;
-    if (year < 1900 || year > 2100) return null;
-    
-    const date = new Date(year, month - 1, day);
-    
-    // Check if the date is valid (handles invalid dates like 02/30/2023)
-    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
-        return null;
-    }
-    
-    return date;
-}
+(function () {
+    'use strict';
 
-// Calculate precise age
-function calculateAge(birthDate, toDate = new Date()) {
-    const birth = new Date(birthDate);
-    const to = new Date(toDate);
-    
-    let years = to.getFullYear() - birth.getFullYear();
-    let months = to.getMonth() - birth.getMonth();
-    let days = to.getDate() - birth.getDate();
-    
-    // Adjust for negative days
-    if (days < 0) {
-        months--;
-        const lastDayOfPrevMonth = new Date(to.getFullYear(), to.getMonth(), 0).getDate();
-        days += lastDayOfPrevMonth;
-    }
-    
-    // Adjust for negative months
-    if (months < 0) {
-        years--;
-        months += 12;
-    }
-    
-    // Calculate total time difference in milliseconds
-    const timeDiff = to.getTime() - birth.getTime();
-    const totalDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    const totalHours = Math.floor(timeDiff / (1000 * 60 * 60));
-    const totalMinutes = Math.floor(timeDiff / (1000 * 60));
-    
-    return {
-        years,
-        months,
-        days,
-        totalDays,
-        totalHours,
-        totalMinutes
+    const MS_PER_DAY = 86400000;
+    const MIN_YEAR = 1900;
+
+    let current = null; // { birthDate, lastPerson, lastEvent }
+
+    // ---------- Safe storage (private windows can throw) ----------
+    const storage = {
+        get(key) { try { return localStorage.getItem(key); } catch (e) { return null; } },
+        set(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* ignore */ } }
     };
-}
 
-// Western Zodiac Signs
-function getWesternZodiac(date) {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    
-    const signs = [
-        { name: "Capricorn", symbol: "♑", dates: [[12, 22], [1, 19]] },
-        { name: "Aquarius", symbol: "♒", dates: [[1, 20], [2, 18]] },
-        { name: "Pisces", symbol: "♓", dates: [[2, 19], [3, 20]] },
-        { name: "Aries", symbol: "♈", dates: [[3, 21], [4, 19]] },
-        { name: "Taurus", symbol: "♉", dates: [[4, 20], [5, 20]] },
-        { name: "Gemini", symbol: "♊", dates: [[5, 21], [6, 20]] },
-        { name: "Cancer", symbol: "♋", dates: [[6, 21], [7, 22]] },
-        { name: "Leo", symbol: "♌", dates: [[7, 23], [8, 22]] },
-        { name: "Virgo", symbol: "♍", dates: [[8, 23], [9, 22]] },
-        { name: "Libra", symbol: "♎", dates: [[9, 23], [10, 22]] },
-        { name: "Scorpio", symbol: "♏", dates: [[10, 23], [11, 21]] },
-        { name: "Sagittarius", symbol: "♐", dates: [[11, 22], [12, 21]] }
-    ];
-    
-    for (const sign of signs) {
-        const [start, end] = sign.dates;
-        if ((month === start[0] && day >= start[1]) || (month === end[0] && day <= end[1])) {
-            return `${sign.symbol} ${sign.name}`;
+    // ---------- Date helpers ----------
+    function daysInMonth(year, monthIndex) {
+        return new Date(year, monthIndex + 1, 0).getDate();
+    }
+
+    // Date for (year, monthIndex, day), clamping the day to the month's length
+    // so Jan 31 + 1 month = Feb 28/29 and a Feb 29 birthday maps to Feb 28.
+    function clampedDate(year, monthIndex, day) {
+        const y = year + Math.floor(monthIndex / 12);
+        const m = ((monthIndex % 12) + 12) % 12;
+        return new Date(y, m, Math.min(day, daysInMonth(y, m)));
+    }
+
+    // Whole calendar days between two dates, immune to daylight-saving shifts.
+    function dayDiff(a, b) {
+        const ua = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+        const ub = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+        return Math.round((ub - ua) / MS_PER_DAY);
+    }
+
+    function startOfToday() {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    // Accepts M/D/YYYY, MM/DD/YYYY, with "/", "-" or "." separators.
+    function parseMMDDYYYY(value) {
+        const match = value.trim().match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+        if (!match) return null;
+        const month = Number(match[1]);
+        const day = Number(match[2]);
+        const year = Number(match[3]);
+        const date = new Date(year, month - 1, day);
+        if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+            return null; // e.g. 02/30/2001
         }
+        return date;
     }
-    return "♑ Capricorn"; // Default fallback
-}
 
-// Chinese Zodiac
-function getChineseZodiac(year) {
-    const animals = ["Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"];
-    const elements = ["Metal", "Water", "Wood", "Fire", "Earth"];
-    
-    const animalIndex = (year - 1900) % 12;
-    const elementIndex = Math.floor(((year - 1900) % 10) / 2);
-    
-    return `${elements[elementIndex]} ${animals[animalIndex]}`;
-}
+    function formatDate(date) {
+        return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
 
-// Vietnamese Zodiac (similar to Chinese but with Cat instead of Rabbit)
-function getVietnameseZodiac(year) {
-    const animals = ["Rat", "Ox", "Tiger", "Cat", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"];
-    const elements = ["Metal", "Water", "Wood", "Fire", "Earth"];
-    
-    const animalIndex = (year - 1900) % 12;
-    const elementIndex = Math.floor(((year - 1900) % 10) / 2);
-    
-    return `${elements[elementIndex]} ${animals[animalIndex]}`;
-}
-
-// Native American Zodiac
-function getNativeAmericanZodiac(date) {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    
-    const signs = [
-        { name: "Red Hawk", dates: [[3, 21], [4, 19]] },
-        { name: "Beaver", dates: [[4, 20], [5, 20]] },
-        { name: "Deer", dates: [[5, 21], [6, 20]] },
-        { name: "Woodpecker", dates: [[6, 21], [7, 21]] },
-        { name: "Salmon", dates: [[7, 22], [8, 21]] },
-        { name: "Brown Bear", dates: [[8, 22], [9, 21]] },
-        { name: "Raven", dates: [[9, 22], [10, 22]] },
-        { name: "Snake", dates: [[10, 23], [11, 22]] },
-        { name: "Owl", dates: [[11, 23], [12, 21]] },
-        { name: "Goose", dates: [[12, 22], [1, 19]] },
-        { name: "Otter", dates: [[1, 20], [2, 18]] },
-        { name: "Wolf", dates: [[2, 19], [3, 20]] }
-    ];
-    
-    for (const sign of signs) {
-        const [start, end] = sign.dates;
-        if ((month === start[0] && day >= start[1]) || (month === end[0] && day <= end[1])) {
-            return sign.name;
+    // ---------- Age calculation ----------
+    function calculateAge(birth, to, isToday) {
+        let totalMonths = (to.getFullYear() - birth.getFullYear()) * 12 + (to.getMonth() - birth.getMonth());
+        if (clampedDate(birth.getFullYear(), birth.getMonth() + totalMonths, birth.getDate()) > to) {
+            totalMonths--;
         }
-    }
-    return "Goose"; // Default fallback
-}
+        const anchor = clampedDate(birth.getFullYear(), birth.getMonth() + totalMonths, birth.getDate());
 
-// Vedic Zodiac (Simplified version)
-function getVedicZodiac(date) {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    
-    const signs = [
-        { name: "Mesha (Aries)", dates: [[4, 14], [5, 14]] },
-        { name: "Vrishabha (Taurus)", dates: [[5, 15], [6, 14]] },
-        { name: "Mithuna (Gemini)", dates: [[6, 15], [7, 14]] },
-        { name: "Karka (Cancer)", dates: [[7, 15], [8, 14]] },
-        { name: "Simha (Leo)", dates: [[8, 15], [9, 15]] },
-        { name: "Kanya (Virgo)", dates: [[9, 16], [10, 15]] },
-        { name: "Tula (Libra)", dates: [[10, 16], [11, 14]] },
-        { name: "Vrishchika (Scorpio)", dates: [[11, 15], [12, 14]] },
-        { name: "Dhanus (Sagittarius)", dates: [[12, 15], [1, 13]] },
-        { name: "Makara (Capricorn)", dates: [[1, 14], [2, 12]] },
-        { name: "Kumbha (Aquarius)", dates: [[2, 13], [3, 13]] },
-        { name: "Meena (Pisces)", dates: [[3, 14], [4, 13]] }
-    ];
-    
-    for (const sign of signs) {
-        const [start, end] = sign.dates;
-        if ((month === start[0] && day >= start[1]) || (month === end[0] && day <= end[1])) {
-            return sign.name;
+        const totalDays = dayDiff(birth, to);
+        // When counting to "today", include the time elapsed so far today.
+        const extraMs = isToday ? Date.now() - startOfToday().getTime() : 0;
+        const totalMinutes = Math.floor((totalDays * MS_PER_DAY + extraMs) / 60000);
+
+        return {
+            years: Math.floor(totalMonths / 12),
+            months: totalMonths % 12,
+            days: dayDiff(anchor, to),
+            totalMonths,
+            totalWeeks: Math.floor(totalDays / 7),
+            totalDays,
+            totalHours: Math.floor(totalMinutes / 60),
+            totalMinutes
+        };
+    }
+
+    function nextBirthday(birth, from) {
+        let years = from.getFullYear() - birth.getFullYear();
+        let next = clampedDate(birth.getFullYear() + years, birth.getMonth(), birth.getDate());
+        if (next < from) {
+            years++;
+            next = clampedDate(birth.getFullYear() + years, birth.getMonth(), birth.getDate());
         }
+        return { date: next, turning: years, daysAway: dayDiff(from, next) };
     }
-    return "Makara (Capricorn)"; // Default fallback
-}
 
-// Mayan Zodiac
-function getMayanZodiac(date) {
-    const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
-    const signs = [
-        "Ch'en (Black Storm)", "Yax (Green Storm)", "Sac (White Storm)", "Keh (Red Storm)",
-        "Mak (Enclosed)", "K'ank'in (Yellow Sun)", "Muwan (Owl)", "Pax (Planting Time)",
-        "K'ayab (Turtle)", "Kumk'u (Granary)", "Wayeb (Nameless Days)", "Pop (Mat)",
-        "Wo (Frog)", "Sip (Red Storm)", "Sotz' (Bat)", "Sek (Skull)", "Xul (Dog)",
-        "Yaxk'in (New Sun)", "Mol (Water)", "Ch'en (Black Storm)"
-    ];
-    
-    const signIndex = Math.floor(dayOfYear / 20) % signs.length;
-    return signs[signIndex];
-}
+    // ---------- Zodiac systems ----------
+    // Each returns { key, title, lines[] }. `key` is used to look up ZODIAC_INFO.
 
-// Incan Zodiac (Simplified)
-function getIncanZodiac(date) {
-    const month = date.getMonth() + 1;
-    const signs = [
-        "Puma (January)", "Condor (February)", "Serpent (March)", "Fox (April)",
-        "Llama (May)", "Falcon (June)", "Vicuña (July)", "Jaguar (August)",
-        "Coca (September)", "Mountain (October)", "Chuya (November)", "Amaru (December)"
-    ];
-    
-    return signs[month - 1] || "Puma";
-}
-
-// Famous People Data - uses database from famous-people.js
-function getFamousPeople(month, day) {
-    const key = `${month}-${day}`;
-    
-    // Check if the database is loaded and has the data
-    if (typeof FAMOUS_PEOPLE !== 'undefined' && FAMOUS_PEOPLE[key]) {
-        return FAMOUS_PEOPLE[key];
+    // Finds the entry whose start date (month/day at the given indexes) most
+    // recently precedes the date, wrapping around the new year.
+    function findByStartDate(list, date, monthIdx, dayIdx) {
+        const md = (date.getMonth() + 1) * 100 + date.getDate();
+        const start = e => e[monthIdx] * 100 + e[dayIdx];
+        const before = list.filter(e => start(e) <= md);
+        const pool = before.length ? before : list;
+        return pool.reduce((a, b) => (start(a) > start(b) ? a : b));
     }
-    
-    // Fallback if database not loaded or no data for this date
-    return [
-        "Data loading...", "Please refresh the page", "if this persists.", 
-        "Famous people data", "for this date", "is currently",
-        "unavailable", "in the database.", "Try another date.", "Thank you for your patience."
-    ];
-}
 
-// Historical Events Data - uses database from historical-events.js
-function getHistoricalEvents(month, day) {
-    const key = `${month}-${day}`;
-    
-    // Check if the database is loaded and has the data
-    if (typeof HISTORICAL_EVENTS !== 'undefined' && HISTORICAL_EVENTS[key]) {
-        return HISTORICAL_EVENTS[key];
-    }
-    
-    // Fallback if database not loaded or no data for this date
-    return [
-        "Data loading...", "Please refresh the page", "if this persists.", 
-        "Historical events data", "for this date", "is currently",
-        "unavailable", "in the database.", "Try another date.", "Thank you for your patience."
+    const WESTERN = [
+        // [name, symbol, element, quality, traits, start month, start day]
+        ['Capricorn', '♑', 'Earth', 'Cardinal', 'Ambitious, Practical, Disciplined', 12, 22],
+        ['Aquarius', '♒', 'Air', 'Fixed', 'Independent, Innovative, Humanitarian', 1, 20],
+        ['Pisces', '♓', 'Water', 'Mutable', 'Compassionate, Intuitive, Artistic', 2, 19],
+        ['Aries', '♈', 'Fire', 'Cardinal', 'Energetic, Courageous, Leader', 3, 21],
+        ['Taurus', '♉', 'Earth', 'Fixed', 'Reliable, Patient, Sensual', 4, 20],
+        ['Gemini', '♊', 'Air', 'Mutable', 'Curious, Adaptable, Communicative', 5, 21],
+        ['Cancer', '♋', 'Water', 'Cardinal', 'Nurturing, Emotional, Protective', 6, 21],
+        ['Leo', '♌', 'Fire', 'Fixed', 'Confident, Generous, Dramatic', 7, 23],
+        ['Virgo', '♍', 'Earth', 'Mutable', 'Analytical, Helpful, Perfectionist', 8, 23],
+        ['Libra', '♎', 'Air', 'Cardinal', 'Harmonious, Diplomatic, Artistic', 9, 23],
+        ['Scorpio', '♏', 'Water', 'Fixed', 'Intense, Passionate, Mysterious', 10, 23],
+        ['Sagittarius', '♐', 'Fire', 'Mutable', 'Adventurous, Optimistic, Philosophical', 11, 22]
     ];
-}
 
-// Academy Awards Data - uses database from academy-awards.js
-function getAcademyAwards(year) {
-    // Check if the database is loaded and has the data
-    if (typeof ACADEMY_AWARDS !== 'undefined' && ACADEMY_AWARDS[year]) {
-        return ACADEMY_AWARDS[year];
+    function getWesternZodiac(date) {
+        const [name, symbol, element, quality, traits] = findByStartDate(WESTERN, date, 5, 6);
+        return { key: name, title: `${symbol} ${name}`, lines: [`${element} • ${quality}`, traits] };
     }
-    
-    // Fallback if database not loaded or no data for this year
-    return {
-        bestPicture: "Information not available for this year",
-        bestActor: "Information not available for this year", 
-        bestActress: "Information not available for this year",
-        ceremony: "Academy Awards data not found",
-        location: "Database loading..."
+
+    // Lunar year via the browser's Chinese calendar (handles Lunar New Year in Jan/Feb).
+    function getLunarYear(date) {
+        try {
+            const parts = new Intl.DateTimeFormat('en-u-ca-chinese', { year: 'numeric' }).formatToParts(date);
+            const related = parts.find(p => p.type === 'relatedYear');
+            if (related) return { year: Number(related.value), exact: true };
+        } catch (e) { /* fall through */ }
+        return { year: date.getFullYear(), exact: false };
+    }
+
+    const CHINESE_ANIMALS = [
+        ['Rat', 'Intelligent, Adaptable, Quick-witted'],
+        ['Ox', 'Reliable, Strong, Determined'],
+        ['Tiger', 'Brave, Confident, Competitive'],
+        ['Rabbit', 'Quiet, Elegant, Kind'],
+        ['Dragon', 'Energetic, Intelligent, Gifted'],
+        ['Snake', 'Wise, Enigmatic, Intuitive'],
+        ['Horse', 'Animated, Active, Energetic'],
+        ['Goat', 'Calm, Gentle, Sympathetic'],
+        ['Monkey', 'Sharp, Smart, Curious'],
+        ['Rooster', 'Observant, Hardworking, Courageous'],
+        ['Dog', 'Loyal, Honest, Responsible'],
+        ['Pig', 'Compassionate, Generous, Diligent']
+    ];
+    const ELEMENTS = ['Wood', 'Fire', 'Earth', 'Metal', 'Water'];
+    const mod = (n, m) => ((n % m) + m) % m;
+
+    function lunarAnimal(date) {
+        const lunar = getLunarYear(date);
+        const offset = lunar.year - 4; // 4 CE was a Wood Rat year
+        return { lunar, animalIndex: mod(offset, 12), element: ELEMENTS[Math.floor(mod(offset, 10) / 2)] };
+    }
+
+    function lunarNote(date, lunar) {
+        if (!lunar.exact) return 'Based on calendar year';
+        return lunar.year !== date.getFullYear() ? `Lunar year ${lunar.year} (before Lunar New Year)` : `Lunar year ${lunar.year}`;
+    }
+
+    function getChineseZodiac(date) {
+        const { lunar, animalIndex, element } = lunarAnimal(date);
+        const [name, traits] = CHINESE_ANIMALS[animalIndex];
+        return { key: name, title: `${element} ${name}`, lines: [traits, lunarNote(date, lunar)] };
+    }
+
+    function getVietnameseZodiac(date) {
+        const { lunar, animalIndex, element } = lunarAnimal(date);
+        // The Vietnamese zodiac uses the Buffalo for the Ox and the Cat for the Rabbit.
+        const [name, traits] = CHINESE_ANIMALS[animalIndex];
+        const vnName = { Ox: 'Buffalo', Rabbit: 'Cat' }[name] || name;
+        const isCat = vnName === 'Cat';
+        return {
+            key: isCat ? 'Cat' : name,
+            infoSystem: isCat ? 'vietnamese' : 'chinese',
+            title: `${element} ${vnName}`,
+            lines: [isCat ? 'Graceful, Intuitive, Diplomatic' : traits, lunarNote(date, lunar)]
+        };
+    }
+
+    const NATIVE_AMERICAN = [
+        ['Red Hawk', 'Fire', 'Leadership, Initiative, Pioneer', 'Fire Opal', 3, 21],
+        ['Beaver', 'Earth', 'Builder, Methodical, Determined', 'Chrysocolla', 4, 20],
+        ['Deer', 'Air', 'Gentle, Inspiring, Alert', 'Moss Agate', 5, 21],
+        ['Woodpecker', 'Water', 'Nurturing, Protective, Devoted', 'Carnelian', 6, 21],
+        ['Salmon', 'Fire', 'Focused, Enthusiastic, Generous', 'Red Jasper', 7, 22],
+        ['Brown Bear', 'Earth', 'Practical, Methodical, Industrious', 'Amethyst', 8, 22],
+        ['Raven', 'Air', 'Charming, Diplomatic, Idealistic', 'Jasper', 9, 22],
+        ['Snake', 'Water', 'Mysterious, Ambitious, Secretive', 'Copper', 10, 23],
+        ['Owl', 'Fire', 'Adventurous, Independent, Changeable', 'Obsidian', 11, 23],
+        ['Goose', 'Earth', 'Ambitious, Driven, Persevering', 'Quartz', 12, 22],
+        ['Otter', 'Air', 'Independent, Unconventional, Friendly', 'Silver', 1, 20],
+        ['Wolf', 'Water', 'Emotional, Passionate, Generous', 'Turquoise', 2, 19]
+    ];
+
+    function getNativeAmericanZodiac(date) {
+        const [name, element, traits, stone] = findByStartDate(NATIVE_AMERICAN, date, 4, 5);
+        return { key: name, title: name, lines: [`${element} Element`, traits, `Sacred Stone: ${stone}`] };
+    }
+
+    const VEDIC = [
+        ['Mesha', 'Aries', 'Mars', 'Red Coral', 4, 14],
+        ['Vrishabha', 'Taurus', 'Venus', 'Diamond', 5, 15],
+        ['Mithuna', 'Gemini', 'Mercury', 'Emerald', 6, 15],
+        ['Karka', 'Cancer', 'Moon', 'Pearl', 7, 15],
+        ['Simha', 'Leo', 'Sun', 'Ruby', 8, 15],
+        ['Kanya', 'Virgo', 'Mercury', 'Emerald', 9, 16],
+        ['Tula', 'Libra', 'Venus', 'Diamond', 10, 16],
+        ['Vrishchika', 'Scorpio', 'Mars', 'Red Coral', 11, 15],
+        ['Dhanus', 'Sagittarius', 'Jupiter', 'Yellow Sapphire', 12, 15],
+        ['Makara', 'Capricorn', 'Saturn', 'Blue Sapphire', 1, 14],
+        ['Kumbha', 'Aquarius', 'Saturn', 'Blue Sapphire', 2, 13],
+        ['Meena', 'Pisces', 'Jupiter', 'Yellow Sapphire', 3, 14]
+    ];
+
+    function getVedicZodiac(date) {
+        const [name, western, ruler, gem] = findByStartDate(VEDIC, date, 4, 5);
+        return { key: name, title: `${name} (${western})`, lines: [`Ruler: ${ruler}`, `Gem: ${gem}`, 'Sidereal sun sign'] };
+    }
+
+    // Mayan Tzolk'in day sign, using the standard GMT correlation (JDN 584283).
+    const TZOLKIN = [
+        ['Imix', 'Crocodile'], ['Ik', 'Wind'], ['Akbal', 'Night'], ['Kan', 'Seed'],
+        ['Chicchan', 'Serpent'], ['Cimi', 'Death'], ['Manik', 'Deer'], ['Lamat', 'Star'],
+        ['Muluc', 'Water'], ['Oc', 'Dog'], ['Chuen', 'Monkey'], ['Eb', 'Road'],
+        ['Ben', 'Reed'], ['Ix', 'Jaguar'], ['Men', 'Eagle'], ['Cib', 'Vulture'],
+        ['Caban', 'Earth'], ['Etznab', 'Flint'], ['Cauac', 'Storm'], ['Ahau', 'Lord']
+    ];
+
+    function getMayanZodiac(date) {
+        const jdn = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / MS_PER_DAY) + 2440588;
+        const days = jdn - 584283; // day 0 of the Long Count = 4 Ahau
+        const number = mod(days + 3, 13) + 1;
+        const [name, meaning] = TZOLKIN[mod(days + 19, 20)];
+        return { key: name, title: `${number} ${name}`, lines: [meaning, "Tzolk'in day sign"] };
+    }
+
+    const INCAN = ['Puma', 'Condor', 'Serpent', 'Fox', 'Llama', 'Falcon', 'Vicuña', 'Jaguar', 'Coca', 'Mountain', 'Chuya', 'Amaru'];
+
+    function getIncanZodiac(date) {
+        const name = INCAN[date.getMonth()];
+        return { key: name, title: name, lines: [`${date.toLocaleDateString('en-US', { month: 'long' })} sign`] };
+    }
+
+    const ZODIAC_SYSTEMS = {
+        western: { label: 'Western Astrology', fn: getWesternZodiac },
+        chinese: { label: 'Chinese Zodiac', fn: getChineseZodiac },
+        vietnamese: { label: 'Vietnamese Zodiac', fn: getVietnameseZodiac },
+        nativeAmerican: { label: 'Native American Zodiac', fn: getNativeAmericanZodiac },
+        vedic: { label: 'Vedic Astrology', fn: getVedicZodiac },
+        mayan: { label: 'Mayan Astrology', fn: getMayanZodiac },
+        incan: { label: 'Incan Astrology', fn: getIncanZodiac }
     };
-}
 
-// Main form handler
-document.getElementById('ageForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const birthDateInput = document.getElementById('birthDate').value.trim();
-    const calculateDateInput = document.getElementById('calculateDate').value.trim();
-    
-    // Validate birth date
-    const birthDate = parseMMDDYYYY(birthDateInput);
-    if (!birthDate) {
-        showError('Please enter a valid birth date in MM/DD/YYYY format.');
-        return;
+    // ---------- Data lookups ----------
+    // `const` globals from classic scripts are not properties of window, so check by name.
+    function getDatabase(name) {
+        switch (name) {
+            case 'FAMOUS_PEOPLE': return typeof FAMOUS_PEOPLE !== 'undefined' ? FAMOUS_PEOPLE : null;
+            case 'HISTORICAL_EVENTS': return typeof HISTORICAL_EVENTS !== 'undefined' ? HISTORICAL_EVENTS : null;
+            case 'ACADEMY_AWARDS': return typeof ACADEMY_AWARDS !== 'undefined' ? ACADEMY_AWARDS : null;
+            case 'ZODIAC_INFO': return typeof ZODIAC_INFO !== 'undefined' ? ZODIAC_INFO : null;
+            default: return null;
+        }
     }
-    
-    // Parse calculate date or use current date
-    let calculateDate = new Date();
-    if (calculateDateInput) {
-        calculateDate = parseMMDDYYYY(calculateDateInput);
-        if (!calculateDate) {
-            showError('Please enter a valid calculation date in MM/DD/YYYY format.');
+
+    function entriesForDay(dbName, date) {
+        const db = getDatabase(dbName);
+        return db ? db[`${date.getMonth() + 1}-${date.getDate()}`] || null : null;
+    }
+
+    function pickRandom(list, avoid) {
+        if (!list || list.length === 0) return null;
+        if (list.length === 1) return list[0];
+        let choice;
+        do { choice = list[Math.floor(Math.random() * list.length)]; } while (choice === avoid);
+        return choice;
+    }
+
+    // ---------- DOM helpers ----------
+    const $ = id => document.getElementById(id);
+
+    function el(tag, props, children) {
+        const node = document.createElement(tag);
+        if (props) Object.assign(node, props);
+        (children || []).forEach(c => node.append(c));
+        return node;
+    }
+
+    function plural(n, word) {
+        return `${n.toLocaleString()} ${word}${n === 1 ? '' : 's'}`;
+    }
+
+    function showError(message) {
+        const box = $('formError');
+        box.textContent = message;
+        box.hidden = false;
+        $('results').hidden = true;
+    }
+
+    function clearError() {
+        $('formError').textContent = '';
+        $('formError').hidden = true;
+    }
+
+    // ---------- Rendering ----------
+    function renderAge(birth, to, isToday) {
+        const age = calculateAge(birth, to, isToday);
+        const box = $('ageResult');
+        box.replaceChildren(
+            el('div', { className: 'age-main' }, [
+                `${plural(age.years, 'year')}, ${plural(age.months, 'month')}, ${plural(age.days, 'day')}`
+            ]),
+            el('div', { className: 'age-sub' }, [
+                `Born on a ${birth.toLocaleDateString('en-US', { weekday: 'long' })}` +
+                (isToday ? '' : ` • Age as of ${formatDate(to)}`)
+            ]),
+            el('div', { className: 'age-totals' }, [
+                plural(age.totalMonths, 'month'), plural(age.totalWeeks, 'week'), plural(age.totalDays, 'day'),
+                plural(age.totalHours, 'hour'), plural(age.totalMinutes, 'minute')
+            ].map(t => el('span', {}, [t])))
+        );
+
+        if (isToday) {
+            const nb = nextBirthday(birth, to);
+            const text = nb.daysAway === 0
+                ? `🎉 Happy birthday! You turn ${nb.turning} today.`
+                : `🎈 You turn ${nb.turning} in ${plural(nb.daysAway, 'day')} (${formatDate(nb.date)}).`;
+            box.append(el('div', { className: 'age-next' }, [text]));
+        }
+    }
+
+    function renderZodiac(birth) {
+        document.querySelectorAll('.zodiac-card').forEach(card => {
+            const system = card.dataset.system;
+            const result = ZODIAC_SYSTEMS[system].fn(birth);
+            card.dataset.key = result.key;
+            card.dataset.infoSystem = result.infoSystem || system;
+            card.dataset.title = result.title;
+            card.querySelector('.zodiac-sign').replaceChildren(
+                el('strong', {}, [result.title]),
+                ...result.lines.map(line => el('span', {}, [line]))
+            );
+        });
+    }
+
+    function renderSingle(containerId, buttonId, dbName, avoid, emptyText) {
+        const list = entriesForDay(dbName, current.birthDate);
+        const choice = pickRandom(list, avoid);
+        $(containerId).replaceChildren(el('ul', {}, [el('li', {}, [choice || emptyText])]));
+        $(buttonId).hidden = !list || list.length < 2;
+        return choice;
+    }
+
+    function renderPeople() {
+        current.lastPerson = renderSingle('famousPeople', 'tryAgainPeople', 'FAMOUS_PEOPLE',
+            current.lastPerson, 'No famous birthdays on file for this date yet.');
+    }
+
+    function renderEvents() {
+        current.lastEvent = renderSingle('historicalEvents', 'tryAgainEvents', 'HISTORICAL_EVENTS',
+            current.lastEvent, 'No historical events on file for this date yet.');
+    }
+
+    function renderAwards(year) {
+        const awards = getDatabase('ACADEMY_AWARDS') || {};
+        // ACADEMY_AWARDS is keyed by ceremony year; films from year N are honored in year N+1.
+        const entry = awards[year + 1];
+        $('awardsHeading').textContent = `🏆 Oscar Winners for Films of ${year}`;
+        const box = $('academyAwards');
+        if (!entry) {
+            const years = Object.keys(awards).map(Number);
+            const range = years.length ? ` We have films from ${Math.min(...years) - 1} to ${Math.max(...years) - 1}.` : '';
+            box.replaceChildren(el('p', {}, [`No Academy Awards data for films of ${year} yet.${range}`]));
             return;
         }
+        const item = (label, value) => el('li', {}, [el('strong', {}, [`${label}: `]), value]);
+        box.replaceChildren(
+            el('ul', {}, [
+                item('Best Picture', entry.bestPicture),
+                item('Best Actor', entry.bestActor),
+                item('Best Actress', entry.bestActress)
+            ]),
+            el('p', { className: 'awards-note' }, [`Presented at the ${entry.ceremony || 'Academy Awards'} in ${year + 1}.`])
+        );
     }
-    
-    // Check if birth date is not in the future
-    if (birthDate > calculateDate) {
-        showError('Birth date cannot be in the future relative to the calculation date.');
-        return;
+
+    function displayResults(birth, to, isToday) {
+        current = { birthDate: birth, lastPerson: null, lastEvent: null };
+        renderAge(birth, to, isToday);
+        renderZodiac(birth);
+        renderPeople();
+        renderEvents();
+        renderAwards(birth.getFullYear());
+
+        const results = $('results');
+        results.hidden = false;
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    
-    // Calculate age
-    const age = calculateAge(birthDate, calculateDate);
-    
-    // Display results
-    displayResults(birthDate, calculateDate, age);
-});
 
-function showError(message) {
-    const resultsSection = document.getElementById('results');
-    resultsSection.innerHTML = `<div class="error">${message}</div>`;
-    resultsSection.style.display = 'block';
-}
+    // ---------- Zodiac modal ----------
+    let lastFocused = null;
 
-function displayResults(birthDate, calculateDate, age) {
-    // Show age calculation
-    document.getElementById('ageResult').innerHTML = `
-        <div><strong>${age.years} years, ${age.months} months, ${age.days} days</strong></div>
-        <div>Total: ${age.totalDays.toLocaleString()} days</div>
-        <div>Total: ${age.totalHours.toLocaleString()} hours</div>
-        <div>Total: ${age.totalMinutes.toLocaleString()} minutes</div>
-    `;
-    
-    // Show zodiac signs
-    document.getElementById('westernZodiac').textContent = getWesternZodiac(birthDate);
-    document.getElementById('chineseZodiac').textContent = getChineseZodiac(birthDate.getFullYear());
-    document.getElementById('vietnameseZodiac').textContent = getVietnameseZodiac(birthDate.getFullYear());
-    document.getElementById('nativeAmericanZodiac').textContent = getNativeAmericanZodiac(birthDate);
-    document.getElementById('vedicZodiac').textContent = getVedicZodiac(birthDate);
-    document.getElementById('mayanZodiac').textContent = getMayanZodiac(birthDate);
-    document.getElementById('incanZodiac').textContent = getIncanZodiac(birthDate);
-    
-    // Show famous people
-    const famousPeople = getFamousPeople(birthDate.getMonth() + 1, birthDate.getDate());
-    document.getElementById('famousPeople').innerHTML = '<ul>' + 
-        famousPeople.map(person => `<li>${person}</li>`).join('') + '</ul>';
-    
-    // Show historical events
-    const events = getHistoricalEvents(birthDate.getMonth() + 1, birthDate.getDate());
-    document.getElementById('historicalEvents').innerHTML = '<ul>' + 
-        events.map(event => `<li>${event}</li>`).join('') + '</ul>';
-    
-    // Show Academy Awards
-    const awards = getAcademyAwards(birthDate.getFullYear());
-    document.getElementById('academyAwards').innerHTML = '<ul>' + 
-        `<li><strong>Best Picture:</strong> ${awards.bestPicture}</li>` +
-        `<li><strong>Best Actor:</strong> ${awards.bestActor}</li>` +
-        `<li><strong>Best Actress:</strong> ${awards.bestActress}</li>` + '</ul>';
-    
-    // Show results section
-    document.getElementById('results').style.display = 'block';
-    
-    // Scroll to results
-    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+    function openZodiacModal(card) {
+        if (!card.dataset.key) return;
+        const db = getDatabase('ZODIAC_INFO');
+        const sys = db && db[card.dataset.infoSystem];
+        const info = sys ? sys[card.dataset.key] : null;
 
-// Add input formatting for date fields
-function formatDateInput(input) {
-    input.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length >= 2 && value.length < 4) {
-            value = value.substring(0, 2) + '/' + value.substring(2);
-        } else if (value.length >= 4) {
-            value = value.substring(0, 2) + '/' + value.substring(2, 4) + '/' + value.substring(4, 8);
+        const parts = [
+            el('p', { className: 'modal-system' }, [ZODIAC_SYSTEMS[card.dataset.system].label]),
+            el('h2', { id: 'modalTitle' }, [card.dataset.title])
+        ];
+
+        if (info) {
+            const meta = [info.dates, info.years && `Years: ${info.years}`, info.element && `Element: ${info.element}`,
+                info.planet && `Planet: ${info.planet}`, info.deity && `Deity: ${info.deity}`].filter(Boolean);
+            if (meta.length) parts.push(el('p', { className: 'modal-meta' }, [meta.join(' • ')]));
+            if (info.description) parts.push(el('p', {}, [info.description]));
+            const section = (label, value) => { if (value) parts.push(el('h3', {}, [label]), el('p', {}, [value])); };
+            section('Strengths', info.traits && info.traits.positive && info.traits.positive.join(', '));
+            section('Challenges', info.traits && info.traits.negative && info.traits.negative.join(', '));
+            section('Compatible with', Array.isArray(info.compatibility) && info.compatibility.join(', '));
+            section('Career', typeof info.career === 'string' && info.career);
+            section('Love', typeof info.love === 'string' && info.love);
+            section('Totem', info.totem);
+            section('Symbolism', info.symbolism);
+            section('Meaning', info.mayaMeaning);
+        } else {
+            parts.push(el('p', {}, ['A detailed write-up for this sign hasn’t been added yet.']));
         }
-        e.target.value = value;
+
+        $('modalBody').replaceChildren(...parts);
+        const modal = $('zodiacModal');
+        lastFocused = document.activeElement;
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        modal.querySelector('.close').focus();
+    }
+
+    function closeZodiacModal() {
+        const modal = $('zodiacModal');
+        if (modal.hidden) return;
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        if (lastFocused) lastFocused.focus();
+    }
+
+    // ---------- Input auto-formatting ----------
+    // Typing 06161990 becomes 06/16/1990. Input that already has separators is left alone.
+    function autoFormatDate(input) {
+        input.addEventListener('input', e => {
+            const value = input.value;
+            if ((e.inputType || '').startsWith('delete')) return;
+            if (!/^[\d\/]*$/.test(value)) return;       // other separators: leave alone
+            if (/(^|\/)\d\//.test(value)) return;        // single-digit parts like 6/1/1990
+            const digits = value.replace(/\D/g, '').slice(0, 8);
+            let out = digits;
+            if (digits.length > 4) out = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+            else if (digits.length > 2) out = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+            if (value.endsWith('/') && (digits.length === 2 || digits.length === 4)) out += '/';
+            input.value = out;
+        });
+    }
+
+    // ---------- Init ----------
+    function showCalculator() {
+        $('disclaimer').hidden = true;
+        $('mainContent').hidden = false;
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        clearError();
+
+        const birthRaw = $('birthDate').value;
+        if (!birthRaw.trim()) return showError('Please enter your date of birth.');
+        const birth = parseMMDDYYYY(birthRaw);
+        if (!birth) return showError('That birth date isn’t valid. Use MM/DD/YYYY, for example 06/16/1990.');
+        if (birth.getFullYear() < MIN_YEAR) return showError(`Please enter a birth year of ${MIN_YEAR} or later.`);
+
+        const toRaw = $('calculateDate').value.trim();
+        const isToday = !toRaw;
+        const to = isToday ? startOfToday() : parseMMDDYYYY(toRaw);
+        if (!to) return showError('The “calculate up to” date isn’t valid. Use MM/DD/YYYY, or leave it blank for today.');
+        if (birth > to) {
+            return showError(isToday
+                ? 'That birth date is in the future. Please check the year.'
+                : 'The birth date is after the “calculate up to” date.');
+        }
+
+        displayResults(birth, to, isToday);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        $('footerYear').textContent = new Date().getFullYear();
+
+        if (storage.get('disclaimerAccepted') === 'true') showCalculator();
+        $('disclaimerAccept').addEventListener('click', () => {
+            storage.set('disclaimerAccepted', 'true');
+            showCalculator();
+            $('birthDate').focus();
+        });
+
+        autoFormatDate($('birthDate'));
+        autoFormatDate($('calculateDate'));
+        $('ageForm').addEventListener('submit', handleSubmit);
+        $('tryAgainPeople').addEventListener('click', () => current && renderPeople());
+        $('tryAgainEvents').addEventListener('click', () => current && renderEvents());
+
+        document.querySelectorAll('.zodiac-card').forEach(card => {
+            card.addEventListener('click', () => openZodiacModal(card));
+            card.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openZodiacModal(card); }
+            });
+        });
+
+        const modal = $('zodiacModal');
+        modal.querySelector('.close').addEventListener('click', closeZodiacModal);
+        modal.addEventListener('click', e => { if (e.target === modal) closeZodiacModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeZodiacModal(); });
     });
-}
 
-// Apply formatting to date inputs
-formatDateInput(document.getElementById('birthDate'));
-formatDateInput(document.getElementById('calculateDate'));
-
-// Set current date as placeholder for calculate date
-document.getElementById('calculateDate').placeholder = 
-    new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+    // Exposed for testing from the console.
+    window.AgeCalc = {
+        parseMMDDYYYY, calculateAge, nextBirthday, getWesternZodiac, getChineseZodiac,
+        getVietnameseZodiac, getNativeAmericanZodiac, getVedicZodiac, getMayanZodiac, getIncanZodiac
+    };
+})();

@@ -762,7 +762,7 @@ const HISTORICAL_EVENTS = {
         "Gordie Howe born (1928)",
         "First Domino's Pizza opens (1965)",
         "World Backup Day (computer data)"
-    ]
+    ],
 
     // April
     "4-1": [
@@ -1124,7 +1124,7 @@ const HISTORICAL_EVENTS = {
         "Johnny Galecki born (1975)",
         "First U.S. federal execution by electric chair (1936)",
         "Organization of American States founded (1948)"
-    ]
+    ],
 
     // May
     "5-1": [
@@ -1498,7 +1498,7 @@ const HISTORICAL_EVENTS = {
         "Denholm Elliott born (1922)",
         "Clint Eastwood born (1930)",
         "Brooke Shields born (1965)"
-    ]
+    ],
 
     // June
     "6-1": [
@@ -1860,7 +1860,7 @@ const HISTORICAL_EVENTS = {
         "David Alan Grier born (1956)",
         "Vincent D'Onofrio born (1959)",
         "Mike Tyson born (1966)"
-    ]
+    ],
 
     // July
     "7-1": [
@@ -3243,7 +3243,7 @@ const HISTORICAL_EVENTS = {
         "Swallows of Capistrano leave San Juan (traditional date)",
         "Johnny Carson born, Tonight Show host (1925)",
         "Pelé born, Brazilian soccer legend (1940)",
-        ""Weird Al" Yankovic born, musical comedian (1959)",
+        "\"Weird Al\" Yankovic born, musical comedian (1959)",
         "Ryan Reynolds born, Canadian actor (1976)",
         "Emilia Clarke born, actress (1986)",
         "Cat Deeley born, British TV presenter (1976)",

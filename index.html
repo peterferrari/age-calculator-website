@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Age Calculator - Discover Your Age & More</title>
+    <meta name="description" content="Calculate your exact age and discover your zodiac signs, famous birthdays, historical events and Oscar winners from your birth year.">
+    <title>Age Calculator - Discover Your Age &amp; More</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎂</text></svg>">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,7 +16,7 @@
         </header>
 
         <!-- Disclaimer Section -->
-        <section class="disclaimer-section">
+        <section id="disclaimer" class="disclaimer-section">
             <div class="disclaimer-content">
                 <h2>📋 Important Disclaimer</h2>
                 <div class="disclaimer-text">
@@ -31,28 +33,29 @@
             </div>
         </section>
 
-        <main id="mainContent" style="display: none;">
+        <main id="mainContent" hidden>
             <!-- Age Calculator Form -->
             <section class="calculator-section">
                 <div class="form-container">
                     <h2>Calculate Your Age</h2>
-                    <form id="ageForm">
+                    <form id="ageForm" novalidate>
                         <div class="input-group">
                             <label for="birthDate">Date of Birth (MM/DD/YYYY):</label>
-                            <input type="text" id="birthDate" placeholder="MM/DD/YYYY" required>
+                            <input type="text" id="birthDate" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="bday" maxlength="10" required>
                         </div>
                         <div class="input-group">
                             <label for="calculateDate">Calculate Age Up To (MM/DD/YYYY):</label>
-                            <input type="text" id="calculateDate" placeholder="MM/DD/YYYY">
-                            <small>Leave blank to use today's date</small>
+                            <input type="text" id="calculateDate" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="off" maxlength="10" aria-describedby="calculateHint">
+                            <small id="calculateHint">Leave blank to use today's date</small>
                         </div>
+                        <div id="formError" class="error" role="alert" hidden></div>
                         <button type="submit">Calculate Age</button>
                     </form>
                 </div>
             </section>
 
             <!-- Results Section -->
-            <section id="results" class="results-section" style="display: none;">
+            <section id="results" class="results-section" hidden aria-live="polite">
                 <div class="age-display">
                     <h2>Your Age</h2>
                     <div id="ageResult" class="age-result"></div>
@@ -61,42 +64,42 @@
                 <!-- Zodiac Signs -->
                 <div class="zodiac-section">
                     <h3>🌟 Your Zodiac Signs</h3>
-                    <p class="zodiac-hint">Click on any zodiac sign to learn more about it!</p>
+                    <p class="zodiac-hint">Tap any sign to learn more about it.</p>
                     <div class="zodiac-grid">
-                        <div class="zodiac-card clickable" data-system="western">
+                        <div class="zodiac-card clickable" role="button" tabindex="0" data-system="western">
                             <h4>Western Zodiac</h4>
                             <div id="westernZodiac" class="zodiac-sign"></div>
-                            <small>Click to learn more</small>
+                            <small>Tap for details</small>
                         </div>
-                        <div class="zodiac-card clickable" data-system="chinese">
+                        <div class="zodiac-card clickable" role="button" tabindex="0" data-system="chinese">
                             <h4>Chinese Zodiac</h4>
                             <div id="chineseZodiac" class="zodiac-sign"></div>
-                            <small>Click to learn more</small>
+                            <small>Tap for details</small>
                         </div>
-                        <div class="zodiac-card clickable" data-system="vietnamese">
+                        <div class="zodiac-card clickable" role="button" tabindex="0" data-system="vietnamese">
                             <h4>Vietnamese Zodiac</h4>
                             <div id="vietnameseZodiac" class="zodiac-sign"></div>
-                            <small>Click to learn more</small>
+                            <small>Tap for details</small>
                         </div>
-                        <div class="zodiac-card clickable" data-system="nativeAmerican">
+                        <div class="zodiac-card clickable" role="button" tabindex="0" data-system="nativeAmerican">
                             <h4>Native American</h4>
                             <div id="nativeAmericanZodiac" class="zodiac-sign"></div>
-                            <small>Click to learn more</small>
+                            <small>Tap for details</small>
                         </div>
-                        <div class="zodiac-card clickable" data-system="vedic">
+                        <div class="zodiac-card clickable" role="button" tabindex="0" data-system="vedic">
                             <h4>Vedic</h4>
                             <div id="vedicZodiac" class="zodiac-sign"></div>
-                            <small>Click to learn more</small>
+                            <small>Tap for details</small>
                         </div>
-                        <div class="zodiac-card clickable" data-system="mayan">
+                        <div class="zodiac-card clickable" role="button" tabindex="0" data-system="mayan">
                             <h4>Mayan</h4>
                             <div id="mayanZodiac" class="zodiac-sign"></div>
-                            <small>Click to learn more</small>
+                            <small>Tap for details</small>
                         </div>
-                        <div class="zodiac-card clickable" data-system="incan">
+                        <div class="zodiac-card clickable" role="button" tabindex="0" data-system="incan">
                             <h4>Incan</h4>
                             <div id="incanZodiac" class="zodiac-sign"></div>
-                            <small>Click to learn more</small>
+                            <small>Tap for details</small>
                         </div>
                     </div>
                 </div>
@@ -105,36 +108,34 @@
                 <div class="famous-section">
                     <h3>👥 Famous Person Born on Your Day</h3>
                     <div id="famousPeople" class="famous-list single-item"></div>
-                    <button id="tryAgainPeople" class="try-again-btn" style="display: none;">🎲 Try Another Famous Person</button>
-                    <p class="refresh-hint">🔄 Get different results by clicking "Try Another" or calculating a different date!</p>
+                    <button id="tryAgainPeople" class="try-again-btn" hidden>🎲 Try Another Famous Person</button>
                 </div>
 
                 <!-- Historical Events -->
                 <div class="events-section">
                     <h3>📅 Historical Event on Your Day</h3>
                     <div id="historicalEvents" class="events-list single-item"></div>
-                    <button id="tryAgainEvents" class="try-again-btn" style="display: none;">🎲 Try Another Historical Event</button>
-                    <p class="refresh-hint">🔄 Get different results by clicking "Try Another" or calculating a different date!</p>
+                    <button id="tryAgainEvents" class="try-again-btn" hidden>🎲 Try Another Historical Event</button>
                 </div>
 
                 <!-- Academy Awards -->
                 <div class="awards-section">
-                    <h3>🏆 Academy Awards in Your Birth Year</h3>
+                    <h3 id="awardsHeading">🏆 Oscar Winners from Your Birth Year</h3>
                     <div id="academyAwards" class="awards-list"></div>
                 </div>
             </section>
         </main>
 
         <footer>
-            <p>© 2024 Age Calculator - For Entertainment Purposes Only</p>
+            <p>© <span id="footerYear">2026</span> Age Calculator - For Entertainment Purposes Only</p>
             <p class="footer-disclaimer">Information sourced from Wikipedia and other public databases. This application is provided "as is" without warranty. Use at your own discretion.</p>
         </footer>
     </div>
 
     <!-- Zodiac Information Modal -->
-    <div id="zodiacModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
+    <div id="zodiacModal" class="modal" hidden>
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <button type="button" class="close" aria-label="Close">&times;</button>
             <div id="modalBody">
                 <!-- Modal content will be populated by JavaScript -->
             </div>
@@ -148,6 +149,6 @@
     <script src="data/zodiac-info.js"></script>
     
     <!-- Load Main Application Script -->
-    <script src="script-simple.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

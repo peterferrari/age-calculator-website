@@ -1098,7 +1098,7 @@ const FAMOUS_PEOPLE = {
         "Al Gore (1948) - Former Vice President",
         "Ewan McGregor (1971) - Actor",
         "Jessica Szohr (1985) - Actress"
-    ]
+    ],
 
     // April
     "4-1": [
@@ -1460,7 +1460,7 @@ const FAMOUS_PEOPLE = {
         "Kirsten Dunst (1982) - Actress",
         "Johnny Galecki (1975) - Actor",
         "Ana de Armas (1988) - Actress"
-    ]
+    ],
 
     // May
     "5-1": [
@@ -1834,7 +1834,7 @@ const FAMOUS_PEOPLE = {
         "Terry Waite (1939) - Humanitarian",
         "Tom Berenger (1949) - Actor",
         "Brooke Shields (1965) - Actress/model"
-    ]
+    ],
 
     // June
     "6-1": [
@@ -2196,7 +2196,7 @@ const FAMOUS_PEOPLE = {
         "Vincent D'Onofrio (1959) - Actor",
         "Mike Tyson (1966) - Boxer",
         "Lizzy Caplan (1982) - Actress"
-    ]
+    ],
 
     // July
     "7-1": [
@@ -3579,7 +3579,7 @@ const FAMOUS_PEOPLE = {
         "Pelé (1940) - Brazilian soccer legend",
         "Diana Dors (1931) - British actress",
         "Chi McBride (1961) - Actor",
-        ""Weird Al" Yankovic (1959) - Musical comedian",
+        "\"Weird Al\" Yankovic (1959) - Musical comedian",
         "Michael Crichton (1942) - Author",
         "Nancy Grace (1959) - TV host",
         "Ryan Reynolds (1976) - Canadian actor",
@@ -4372,7 +4372,7 @@ const FAMOUS_PEOPLE = {
     "12-28": [
         "Woodrow Wilson (1856) - 28th U.S. President",
         "Stan Lee (1922) - Marvel Comics creator",
-        "Earl "Fatha" Hines (1903) - Jazz pianist",
+        "Earl \"Fatha\" Hines (1903) - Jazz pianist",
         "Sam Levenson (1911) - Humorist",
         "Maggie Smith (1934) - British actress",
         "Denzel Washington (1954) - Actor",
