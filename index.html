@@ -12,52 +12,80 @@
     <div class="container">
         <header>
             <h1>🎂 Age Calculator</h1>
-            <p>Discover your exact age and fascinating details about your birth date</p>
-            <button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false">🌙 Dark mode</button>
+            <p data-i18n="subtitle">Discover your exact age and fascinating details about your birth date</p>
+            <div class="header-controls">
+                <button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false">🌙 Dark mode</button>
+                <label class="language-picker"><span class="visually-hidden" data-i18n="language">Language</span>
+                    <select id="languageSelect" class="theme-toggle" aria-label="Language"></select>
+                </label>
+            </div>
         </header>
 
         <main id="mainContent">
             <!-- Age Calculator Form -->
             <section class="calculator-section">
                 <div class="form-container">
-                    <h2>Calculate Your Age</h2>
-                    <p class="mini-disclaimer">For entertainment only. Zodiac and trivia content may contain errors. <a href="#fullDisclaimer">Full disclaimer</a></p>
+                    <h2 data-i18n="calcTitle">Calculate Your Age</h2>
+                    <p class="mini-disclaimer"><span data-i18n="miniDisclaimer">For entertainment only. Zodiac and trivia content may contain errors.</span> <a href="#fullDisclaimer" data-i18n="fullDisclaimerLink">Full disclaimer</a></p>
                     <form id="ageForm" novalidate>
                         <div class="input-group">
-                            <label for="birthDate">Date of Birth (MM/DD/YYYY):</label>
-                            <input type="text" id="birthDate" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="bday" maxlength="10" required>
+                            <label for="birthDate" data-i18n="birthLabel">Date of Birth (MM/DD/YYYY):</label>
+                            <input type="text" id="birthDate" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="bday" maxlength="10" aria-describedby="birthHint" required>
+                            <small id="birthHint" data-i18n="birthHint">Slashes are optional: 06/16/1990 or 06161990</small>
                         </div>
                         <div class="input-group">
-                            <label for="calculateDate">Calculate Age Up To (MM/DD/YYYY):</label>
+                            <label for="calculateDate" data-i18n="toLabel">Calculate Age Up To (MM/DD/YYYY):</label>
                             <input type="text" id="calculateDate" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="off" maxlength="10" aria-describedby="calculateHint">
-                            <small id="calculateHint">Leave blank to use today's date</small>
+                            <small id="calculateHint" data-i18n="toHint">Leave blank to use today's date</small>
+                        </div>
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="birthTime" data-i18n="timeLabel">Time of Birth (optional):</label>
+                                <input type="time" id="birthTime">
+                            </div>
+                            <div class="input-group">
+                                <label for="birthPlace" data-i18n="placeLabel">Place of Birth (optional):</label>
+                                <input type="text" id="birthPlace" placeholder="City, Country" maxlength="80" autocomplete="off" aria-describedby="placeHint">
+                                <small id="placeHint" data-i18n="placeHint">For your rising sign. The city name is looked up with Open-Meteo.</small>
+                            </div>
                         </div>
                         <div id="formError" class="error" role="alert" hidden></div>
-                        <button type="submit">Calculate Age</button>
-                        <p class="remember-note"><button type="button" id="forgetMe" class="link-btn" hidden>Forget my birthday on this device</button></p>
+                        <button type="submit" data-i18n="calculate">Calculate Age</button>
+                        <p class="remember-note"><button type="button" id="forgetMe" class="link-btn" hidden data-i18n="forget">Forget my birthday on this device</button></p>
                     </form>
                 </div>
+            </section>
+
+            <!-- On This Day -->
+            <section class="results-section on-this-day">
+                <div class="on-this-day-head">
+                    <h3 data-i18n="onThisDay">📆 On This Day</h3>
+                    <span id="onThisDayDate" class="game-date"></span>
+                    <button type="button" id="onThisDayAgain" class="mini-btn" data-i18n="another">🎲 Another</button>
+                </div>
+                <div id="onThisDayBody"></div>
             </section>
 
             <!-- Results Section -->
             <section id="results" class="results-section" hidden aria-live="polite">
                 <div class="age-display">
-                    <h2>Your Age</h2>
+                    <h2 data-i18n="yourAge">Your Age</h2>
                     <div id="birthdayBanner" class="birthday-banner" hidden></div>
                     <div id="ageResult" class="age-result"></div>
                     <div id="liveTicker" class="ticker" aria-live="off" hidden></div>
+                    <p class="countdown-cta"><a id="countdownLink" href="countdown.html" data-i18n="countdownLink">⏳ Open your birthday countdown page</a></p>
                 </div>
 
                 <!-- Share card -->
                 <div class="fun-section share-section">
-                    <h3>📸 Share Your Results</h3>
+                    <h3 data-i18n="shareTitle">📸 Share Your Results</h3>
                     <div class="share-layout">
                         <canvas id="shareCanvas" width="1080" height="1080" role="img" aria-label="Shareable image with your age and signs"></canvas>
                         <div class="share-actions">
-                            <p>Save a picture of your results to post or send to friends.</p>
-                            <button type="button" id="downloadCard" class="action-btn">⬇️ Download image</button>
-                            <button type="button" id="shareCard" class="action-btn">📤 Share</button>
-                            <button type="button" id="copyText" class="action-btn secondary">📋 Copy as text</button>
+                            <p data-i18n="shareIntro">Save a picture of your results to post or send to friends.</p>
+                            <button type="button" id="downloadCard" class="action-btn" data-i18n="download">⬇️ Download image</button>
+                            <button type="button" id="shareCard" class="action-btn" data-i18n="share">📤 Share</button>
+                            <button type="button" id="copyText" class="action-btn secondary" data-i18n="copy">📋 Copy as text</button>
                             <p id="shareStatus" class="fine-print" role="status"></p>
                         </div>
                     </div>
@@ -65,62 +93,77 @@
 
                 <!-- Milestones -->
                 <div class="fun-section">
-                    <h3>🎯 Your Milestones</h3>
+                    <h3 data-i18n="milestones">🎯 Your Milestones</h3>
                     <div id="milestones"></div>
                 </div>
 
                 <!-- Zodiac Signs -->
                 <div class="zodiac-section">
-                    <h3>🌟 Your Zodiac Signs</h3>
-                    <p class="zodiac-hint">Tap any sign to learn more about it.</p>
+                    <h3 data-i18n="zodiacTitle">🌟 Your Zodiac Signs</h3>
+                    <p class="zodiac-hint" data-i18n="zodiacHint">Tap any sign to learn more about it.</p>
                     <div class="zodiac-grid">
                         <div class="zodiac-card clickable" role="button" tabindex="0" data-system="western">
-                            <h4>Western Zodiac</h4>
+                            <h4 data-i18n="western">Western Zodiac</h4>
                             <div id="westernZodiac" class="zodiac-sign"></div>
-                            <small>Tap for details</small>
+                            <small data-i18n="tapDetails">Tap for details</small>
                         </div>
                         <div class="zodiac-card clickable" role="button" tabindex="0" data-system="chinese">
-                            <h4>Chinese Zodiac</h4>
+                            <h4 data-i18n="chinese">Chinese Zodiac</h4>
                             <div id="chineseZodiac" class="zodiac-sign"></div>
-                            <small>Tap for details</small>
+                            <small data-i18n="tapDetails">Tap for details</small>
                         </div>
                         <div class="zodiac-card clickable" role="button" tabindex="0" data-system="vietnamese">
-                            <h4>Vietnamese Zodiac</h4>
+                            <h4 data-i18n="vietnamese">Vietnamese Zodiac</h4>
                             <div id="vietnameseZodiac" class="zodiac-sign"></div>
-                            <small>Tap for details</small>
+                            <small data-i18n="tapDetails">Tap for details</small>
                         </div>
                         <div class="zodiac-card clickable" role="button" tabindex="0" data-system="nativeAmerican">
-                            <h4>Native American</h4>
+                            <h4 data-i18n="nativeAmerican">Native American</h4>
                             <div id="nativeAmericanZodiac" class="zodiac-sign"></div>
-                            <small>Tap for details</small>
+                            <small data-i18n="tapDetails">Tap for details</small>
                         </div>
                         <div class="zodiac-card clickable" role="button" tabindex="0" data-system="vedic">
-                            <h4>Vedic</h4>
+                            <h4 data-i18n="vedic">Vedic</h4>
                             <div id="vedicZodiac" class="zodiac-sign"></div>
-                            <small>Tap for details</small>
+                            <small data-i18n="tapDetails">Tap for details</small>
                         </div>
                         <div class="zodiac-card clickable" role="button" tabindex="0" data-system="mayan">
-                            <h4>Mayan</h4>
+                            <h4 data-i18n="mayan">Mayan</h4>
                             <div id="mayanZodiac" class="zodiac-sign"></div>
-                            <small>Tap for details</small>
+                            <small data-i18n="tapDetails">Tap for details</small>
                         </div>
                         <div class="zodiac-card clickable" role="button" tabindex="0" data-system="incan">
-                            <h4>Incan</h4>
+                            <h4 data-i18n="incan">Incan</h4>
                             <div id="incanZodiac" class="zodiac-sign"></div>
-                            <small>Tap for details</small>
+                            <small data-i18n="tapDetails">Tap for details</small>
                         </div>
+                    </div>
+                </div>
+
+                <!-- More about you -->
+                <div class="fun-section">
+                    <h3 data-i18n="moreAboutYou">✨ More About You</h3>
+                    <div id="moreAboutYou" class="fun-grid"></div>
+                </div>
+
+                <!-- Life in weeks -->
+                <div class="fun-section">
+                    <h3 data-i18n="lifeInWeeks">🗓️ Your Life in Weeks</h3>
+                    <div class="weeks-wrap">
+                        <canvas id="lifeWeeks" role="img" aria-describedby="lifeWeeksNote"></canvas>
+                        <p id="lifeWeeksNote" class="fine-print"></p>
                     </div>
                 </div>
 
                 <!-- Planets -->
                 <div class="fun-section">
-                    <h3>🪐 Your Age on Other Planets</h3>
+                    <h3 data-i18n="planets">🪐 Your Age on Other Planets</h3>
                     <div id="planetAges" class="planet-grid"></div>
                 </div>
 
                 <!-- Body and animals -->
                 <div class="fun-section">
-                    <h3>🧬 You in Numbers</h3>
+                    <h3 data-i18n="youInNumbers">🧬 You in Numbers</h3>
                     <div id="bodyStats" class="fun-grid"></div>
                 </div>
 
@@ -132,16 +175,16 @@
 
                 <!-- Famous People -->
                 <div class="famous-section">
-                    <h3>👥 Famous Person Born on Your Day</h3>
+                    <h3 data-i18n="famousTitle">👥 Famous Person Born on Your Day</h3>
                     <div id="famousPeople" class="famous-list single-item"></div>
-                    <button id="tryAgainPeople" class="try-again-btn" hidden>🎲 Try Another Famous Person</button>
+                    <button id="tryAgainPeople" class="try-again-btn" hidden data-i18n="tryPerson">🎲 Try Another Famous Person</button>
                 </div>
 
                 <!-- Historical Events -->
                 <div class="events-section">
-                    <h3>📅 Historical Event on Your Day</h3>
+                    <h3 data-i18n="eventsTitle">📅 Historical Event on Your Day</h3>
                     <div id="historicalEvents" class="events-list single-item"></div>
-                    <button id="tryAgainEvents" class="try-again-btn" hidden>🎲 Try Another Historical Event</button>
+                    <button id="tryAgainEvents" class="try-again-btn" hidden data-i18n="tryEvent">🎲 Try Another Historical Event</button>
                 </div>
 
                 <!-- Academy Awards -->
@@ -152,43 +195,61 @@
 
                 <!-- Compare with a friend -->
                 <div class="fun-section">
-                    <h3>👯 Compare With a Friend</h3>
+                    <h3 data-i18n="compareTitle">👯 Compare With a Friend</h3>
                     <form id="compareForm" class="compare-form" novalidate>
                         <div class="input-group">
-                            <label for="friendName">Friend's name (optional)</label>
+                            <label for="friendName" data-i18n="friendName">Friend's name (optional)</label>
                             <input type="text" id="friendName" placeholder="Alex" maxlength="40" autocomplete="off">
                         </div>
                         <div class="input-group">
-                            <label for="friendDate">Friend's birthday (MM/DD/YYYY)</label>
+                            <label for="friendDate" data-i18n="friendBirthday">Friend's birthday (MM/DD/YYYY)</label>
                             <input type="text" id="friendDate" placeholder="MM/DD/YYYY" inputmode="numeric" maxlength="10" autocomplete="off">
                         </div>
-                        <button type="submit" class="action-btn">Compare</button>
+                        <button type="submit" class="action-btn" data-i18n="compare">Compare</button>
                     </form>
                     <div id="compareResult" aria-live="polite"></div>
                 </div>
 
                 <!-- Games -->
                 <div class="fun-section">
-                    <h3>🎮 Games</h3>
+                    <h3 data-i18n="games">🎮 Games</h3>
                     <div class="fun-grid">
                         <div class="fun-card">
-                            <h4>🎂 Birthday Twins</h4>
+                            <h4 data-i18n="twinsTitle">🎂 Birthday Twins</h4>
                             <div id="twinsGame"></div>
                         </div>
                         <div class="fun-card">
-                            <h4>📜 Guess the Year</h4>
+                            <h4 data-i18n="yearTitle">📜 Guess the Year</h4>
                             <div id="yearGame"></div>
                         </div>
                     </div>
                 </div>
             </section>
+
+            <!-- Birthday board -->
+            <section class="results-section board-section">
+                <h3 data-i18n="boardTitle">🎈 Birthday Board</h3>
+                <form id="boardForm" class="compare-form" novalidate>
+                    <div class="input-group">
+                        <label for="boardName" data-i18n="boardName">Name</label>
+                        <input type="text" id="boardName" placeholder="Grandma" maxlength="40" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label for="boardDate" data-i18n="boardBirthday">Birthday (MM/DD/YYYY)</label>
+                        <input type="text" id="boardDate" placeholder="MM/DD/YYYY" inputmode="numeric" maxlength="10" autocomplete="off">
+                    </div>
+                    <button type="submit" class="action-btn" data-i18n="boardAdd">Add</button>
+                </form>
+                <div id="boardError" class="error" role="alert" hidden></div>
+                <div id="boardList" aria-live="polite"></div>
+            </section>
         </main>
 
         <footer>
-            <p>© <span id="footerYear">2026</span> Age Calculator - For Entertainment Purposes Only</p>
+            <p>© <span id="footerYear">2026</span> <span data-i18n="footer">Age Calculator - For Entertainment Purposes Only</span></p>
             <p class="footer-disclaimer">Information sourced from Wikipedia and other public databases. This application is provided "as is" without warranty. Use at your own discretion.</p>
             <details id="fullDisclaimer" class="full-disclaimer">
-                <summary>Full disclaimer</summary>
+                <summary data-i18n="fullDisclaimerLink">Full disclaimer</summary>
                 <div class="disclaimer-text">
                     <h3>For Entertainment Purposes Only:</h3>
                     <p>This application is intended solely for entertainment and informational purposes. The content provided, including age calculations, zodiac signs, cultural calendar information (such as Chinese, Vietnamese, Mayan, Hindu, Hebrew, and Islamic calendar details), numerology, birthstones, birth flowers, and any associated blurbs or interpretations, should not be taken as factual, professional, or definitive advice.</p>
@@ -222,7 +283,9 @@
     <script src="data/birth-year.js"></script>
     
     <!-- Load Main Application Script -->
+    <script src="i18n.js"></script>
     <script src="script.js"></script>
     <script src="fun.js"></script>
+    <script src="extras.js"></script>
 </body>
 </html>

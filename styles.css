@@ -1364,3 +1364,244 @@ button[type="submit"]:focus-visible,
 :root[data-theme="dark"] .footer-disclaimer,
 :root[data-theme="dark"] footer p { color: rgba(255, 255, 255, 0.75); }
 :root[data-theme="dark"] .full-disclaimer h3 { color: #e2e8f0; }
+
+/* ---------- Round 3: header, form rows ---------- */
+.header-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.header-controls .theme-toggle { margin-top: 0; }
+
+.language-picker select option { color: #2d3748; }
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0 1rem;
+}
+
+@media (max-width: 640px) {
+    .input-row { grid-template-columns: 1fr; }
+}
+
+/* ---------- On This Day and birthday board ---------- */
+.on-this-day,
+.board-section {
+    padding: 1.5rem 2rem;
+}
+
+.on-this-day-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.on-this-day-head h3,
+.board-section h3 {
+    color: #4a5568;
+    font-size: 1.4rem;
+}
+
+.on-this-day-head .mini-btn { margin-left: auto; }
+
+.board-section h3 { margin-bottom: 1rem; }
+
+.board-list {
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.board-list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-left: 4px solid #ed64a6;
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem 0.6rem 1rem;
+}
+
+.board-list li.today {
+    border-left-color: #f6ad55;
+    background: linear-gradient(135deg, #fffaf0 0%, #feebc8 100%);
+}
+
+.board-name {
+    font-weight: 700;
+    color: #2d3748;
+    min-width: 7rem;
+}
+
+.board-when {
+    color: #4a5568;
+    flex: 1;
+}
+
+.board-date { color: #718096; font-size: 0.9rem; }
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+.remove-btn:hover { color: #e53e3e; background: rgba(229, 62, 62, 0.1); }
+.remove-btn:focus-visible { outline: 3px solid #f6ad55; }
+
+/* ---------- More about you ---------- */
+.swatch {
+    display: inline-block;
+    width: 0.9em;
+    height: 0.9em;
+    border-radius: 50%;
+    vertical-align: -0.1em;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.big-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #667eea;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.fun-card p { color: #4a5568; margin-top: 0.5rem; }
+
+.fun-card .highlight {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.rhyme { font-style: italic; }
+
+.countdown-cta {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.countdown-cta a {
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* ---------- Life in weeks ---------- */
+.weeks-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#lifeWeeks {
+    width: 100%;
+    max-width: 460px;
+    height: auto;
+}
+
+/* ---------- Countdown page ---------- */
+.countdown-card {
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.countdown-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #2d3748;
+    margin-bottom: 1rem;
+}
+
+.countdown-units {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.countdown-units div {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.countdown-units span {
+    font-size: 2.6rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.countdown-units small { opacity: 0.85; }
+
+.countdown-date {
+    margin: 1rem 0 0.75rem;
+    color: #4a5568;
+    font-weight: 600;
+}
+
+.countdown-progress {
+    height: 12px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.countdown-progress div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #ed64a6, #667eea);
+}
+
+.countdown-form { text-align: left; }
+.countdown-links { margin-top: 1.5rem; }
+.countdown-links a { color: #667eea; }
+
+@media (max-width: 480px) {
+    .countdown-units { grid-template-columns: repeat(2, 1fr); }
+    .countdown-units span { font-size: 2rem; }
+    .on-this-day, .board-section { padding: 1rem; }
+}
+
+/* ---------- Dark mode for round 3 ---------- */
+:root[data-theme="dark"] .board-list li { background: #2a2f45; }
+:root[data-theme="dark"] .board-list li.today { background: #4a3b20; }
+:root[data-theme="dark"] .board-name,
+:root[data-theme="dark"] .fun-card .highlight,
+:root[data-theme="dark"] .countdown-title,
+:root[data-theme="dark"] .on-this-day-head h3,
+:root[data-theme="dark"] .board-section h3 { color: #e2e8f0; }
+:root[data-theme="dark"] .board-when,
+:root[data-theme="dark"] .fun-card p,
+:root[data-theme="dark"] .countdown-date { color: #cbd5e0; }
+:root[data-theme="dark"] .board-date { color: #a0aec0; }
+:root[data-theme="dark"] .big-number,
+:root[data-theme="dark"] .countdown-cta a,
+:root[data-theme="dark"] .countdown-links a { color: #a3bffa; }
+:root[data-theme="dark"] .countdown-progress { background: #3a4160; }
+:root[data-theme="dark"] input[type="time"] { color-scheme: dark; }

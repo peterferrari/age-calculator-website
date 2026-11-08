@@ -1,5 +1,7 @@
 # 🎂 Age Calculator - Comprehensive Birthday Explorer
 
+**Live site:** https://peterferrari.github.io/age-calculator-website/
+
 A modern, interactive web application that calculates your precise age and provides fascinating insights about your birth date across multiple cultural traditions.
 
 ## Features
@@ -36,6 +38,18 @@ A modern, interactive web application that calculates your precise age and provi
 - **Games**: Birthday Twins (which famous person with your birthday is closest to your age?) and Guess the Year
 - **Dark mode**, and your last birthday is remembered on your device (with a "forget" button)
 
+### Personal Extras
+- **Birth time and place (optional)**: exact second-by-second ticker and milestones, plus your **moon sign** and **rising sign**. Places are looked up with the free [Open-Meteo geocoding API](https://open-meteo.com/en/docs/geocoding-api); only the city name is sent
+- **Birthstone, birth flower and lucky colour** for your birth month
+- **Numerology life path number**, including master numbers 11, 22 and 33
+- **Your generation** and the "Monday's Child" rhyme for the day you were born
+- **Life in weeks**: one square for every week of a 90-year life
+- **Birthday countdown page** (`countdown.html`) you can bookmark. The birthday is kept in the part of the address after `#`, which browsers never send to the server
+- **On This Day**: a famous birthday and an event from today's date, shown before you enter anything
+- **Birthday board**: save family and friends' birthdays on your device, sorted by whose is next
+- **Languages**: English, Spanish, French, Chinese and Vietnamese for the page's labels and headings (trivia and zodiac write-ups are in English)
+- **Share card** now has a birthday cake with a candle for every year
+
 ## Usage
 
 1. Enter your birth date in MM/DD/YYYY format
@@ -56,12 +70,18 @@ A modern, interactive web application that calculates your precise age and provi
 - `index.html` - Page structure
 - `styles.css` - Styling
 - `script.js` - Age math, zodiac logic and rendering
-- `fun.js` - The fun extras above
+- `fun.js` - Ticker, milestones, planets, share card, friend comparison and games
+- `extras.js` - Moon and rising signs, birthstones, numerology, generation, life in weeks, On This Day and the birthday board
+- `i18n.js` - Translations
+- `countdown.html` and `countdown.js` - The birthday countdown page
+- `tests/` - Automated tests (run `npm test`, needs Node.js 18 or later)
 - `data/` - Databases for famous people, historical events, Academy Awards, zodiac details (`zodiac-info-extra.js` fills the gaps) and birth-year facts (`birth-year.js`)
 - `archive/` - Older versions and test pages, kept for reference (not used by the site)
 
 To run it, open `index.html` in a browser, or serve the folder (`python3 -m http.server`).
-After editing a data file, run `node --check data/<file>.js` to catch syntax errors: one missing comma stops the whole database from loading.
+After editing any file, run `npm test`. It checks every script and data file for syntax errors (one missing comma stops a whole database from loading) and tests the date, zodiac and astronomy calculations.
+
+The site is published with GitHub Pages from the `main` branch, so pushing to `main` updates the live site.
 
 ## Browser Compatibility
 

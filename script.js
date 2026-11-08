@@ -41,9 +41,10 @@
         return new Date(now.getFullYear(), now.getMonth(), now.getDate());
     }
 
-    // Accepts M/D/YYYY, MM/DD/YYYY, with "/", "-" or "." separators.
+    // Accepts MM/DD/YYYY (or M/D/YYYY, with "/", "-" or "." separators) and MMDDYYYY with no separators.
     function parseMMDDYYYY(value) {
-        const match = value.trim().match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+        const text = value.trim();
+        const match = text.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/) || text.match(/^(\d{2})(\d{2})(\d{4})$/);
         if (!match) return null;
         const month = Number(match[1]);
         const day = Number(match[2]);
@@ -57,6 +58,54 @@
 
     function formatDate(date) {
         return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    // ---------- Translation hook (i18n.js) ----------
+    const t = (key, vars) => (window.I18N ? window.I18N.t(key, vars) : key);
+    const unit = (n, name) => (window.I18N ? window.I18N.unit(n, name) : plural(n, name));
+
+    // ---------- Birth time and place ----------
+    // "HH:MM" from <input type="time">.
+    function parseTime(value) {
+        const m = (value || '').trim().match(/^(\d{1,2}):(\d{2})/);
+        if (!m) return null;
+        const h = Number(m[1]), mi = Number(m[2]);
+        return h <= 23 && mi <= 59 ? { h, mi } : null;
+    }
+
+    const placeCache = {};
+
+    // Finds a place with the free Open-Meteo geocoding service (no key needed).
+    async function lookupPlace(name) {
+        const key = name.toLowerCase();
+        if (placeCache[key]) return placeCache[key];
+        const url = 'https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name=' + encodeURIComponent(name);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Place lookup failed');
+        const json = await res.json();
+        const r = json.results && json.results[0];
+        if (!r) return null;
+        const place = {
+            name: [r.name, r.admin1, r.country].filter(Boolean).join(', '),
+            lat: r.latitude, lon: r.longitude, timeZone: r.timezone
+        };
+        placeCache[key] = place;
+        return place;
+    }
+
+    // The real moment for a wall-clock time in an IANA time zone (handles historic DST rules).
+    function zonedTimeToUtc(y, m, d, h, mi, timeZone) {
+        const target = Date.UTC(y, m, d, h, mi);
+        let guess = target;
+        const fmt = new Intl.DateTimeFormat('en-US', {
+            timeZone, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'
+        });
+        for (let i = 0; i < 3; i++) {
+            const p = Object.fromEntries(fmt.formatToParts(new Date(guess)).map(x => [x.type, x.value]));
+            const shown = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute);
+            guess += target - shown;
+        }
+        return new Date(guess);
     }
 
     // ---------- Age calculation ----------
@@ -316,7 +365,7 @@
         const box = $('ageResult');
         box.replaceChildren(
             el('div', { className: 'age-main' }, [
-                `${plural(age.years, 'year')}, ${plural(age.months, 'month')}, ${plural(age.days, 'day')}`
+                `${unit(age.years, 'year')}, ${unit(age.months, 'month')}, ${unit(age.days, 'day')}`
             ]),
             el('div', { className: 'age-sub' }, [
                 `Born on a ${birth.toLocaleDateString('en-US', { weekday: 'long' })}` +
@@ -395,9 +444,15 @@
         );
     }
 
-    function displayResults(birth, to, isToday) {
+    function displayResults(birth, to, isToday, extra) {
+        const info = extra || { birthMoment: birth, hasTime: false, place: null };
         current = { birthDate: birth, lastPerson: null, lastEvent: null };
         const age = calculateAge(birth, to, isToday);
+        if (isToday && (info.hasTime || info.place)) {
+            // With a birth time, minutes and hours count from the actual moment of birth.
+            age.totalMinutes = Math.max(0, Math.floor((Date.now() - info.birthMoment.getTime()) / 60000));
+            age.totalHours = Math.floor(age.totalMinutes / 60);
+        }
         renderAge(birth, to, isToday, age);
         const signs = renderZodiac(birth);
         renderPeople();
@@ -407,7 +462,9 @@
         const results = $('results');
         results.hidden = false;
         // Let fun.js (and anything else) add its sections.
-        document.dispatchEvent(new CustomEvent('agecalc:results', { detail: { birth, to, isToday, age, signs } }));
+        document.dispatchEvent(new CustomEvent('agecalc:results', {
+            detail: { birth, to, isToday, age, signs, birthMoment: info.birthMoment, hasTime: info.hasTime, place: info.place }
+        }));
     }
 
     // ---------- Zodiac modal ----------
@@ -480,14 +537,17 @@
     function applyTheme(theme) {
         document.documentElement.dataset.theme = theme;
         const btn = $('themeToggle');
-        btn.textContent = theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode';
+        if (!btn) return;
+        btn.textContent = theme === 'dark' ? t('lightMode') : t('darkMode');
         btn.setAttribute('aria-pressed', String(theme === 'dark'));
+        document.dispatchEvent(new CustomEvent('agecalc:theme', { detail: { theme } }));
     }
 
     function initTheme() {
         const saved = storage.get('theme');
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+        if (!$('themeToggle')) return;
         $('themeToggle').addEventListener('click', () => {
             const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
             storage.set('theme', next);
@@ -495,36 +555,69 @@
         });
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
         clearError();
 
         const birthRaw = $('birthDate').value;
         if (!birthRaw.trim()) return showError('Please enter your date of birth.');
         const birth = parseMMDDYYYY(birthRaw);
-        if (!birth) return showError('That birth date isn’t valid. Use MM/DD/YYYY, for example 06/16/1990.');
+        if (!birth) return showError('That birth date isn’t valid. Use MM/DD/YYYY or MMDDYYYY, for example 06/16/1990 or 06161990.');
         if (birth.getFullYear() < MIN_YEAR) return showError(`Please enter a birth year of ${MIN_YEAR} or later.`);
 
         const toRaw = $('calculateDate').value.trim();
         const isToday = !toRaw;
         const to = isToday ? startOfToday() : parseMMDDYYYY(toRaw);
-        if (!to) return showError('The “calculate up to” date isn’t valid. Use MM/DD/YYYY, or leave it blank for today.');
+        if (!to) return showError('The “calculate up to” date isn’t valid. Use MM/DD/YYYY or MMDDYYYY, or leave it blank for today.');
         if (birth > to) {
             return showError(isToday
                 ? 'That birth date is in the future. Please check the year.'
                 : 'The birth date is after the “calculate up to” date.');
         }
 
+        const timeRaw = $('birthTime').value;
+        const time = parseTime(timeRaw);
+        if (timeRaw && !time) return showError('That birth time isn’t valid. Use the time picker, or leave it blank.');
+        const placeName = $('birthPlace').value.trim();
+        let place = null;
+        if (placeName) {
+            const btn = $('ageForm').querySelector('button[type="submit"]');
+            const label = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Looking up place…';
+            try {
+                place = await lookupPlace(placeName);
+            } catch (err) {
+                return showError('Couldn’t look up that place. Check your internet connection, or leave the place blank.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = label;
+            }
+            if (!place) return showError(`Couldn’t find a place called “${placeName}”. Try adding the country, e.g. “Paris, France”.`);
+        }
+        const h = time ? time.h : 0, mi = time ? time.mi : 0;
+        const birthMoment = place
+            ? zonedTimeToUtc(birth.getFullYear(), birth.getMonth(), birth.getDate(), h, mi, place.timeZone)
+            : new Date(birth.getFullYear(), birth.getMonth(), birth.getDate(), h, mi);
+        if (isToday && birthMoment.getTime() > Date.now()) return showError('That birth time hasn’t happened yet today.');
+
         storage.set('lastBirthDate', birthRaw.trim());
+        storage.set('lastBirthTime', time ? timeRaw : '');
+        storage.set('lastBirthPlace', placeName);
         $('forgetMe').hidden = false;
-        displayResults(birth, to, isToday);
+        displayResults(birth, to, isToday, { birthMoment, hasTime: !!time, place });
         if (!(e.detail && e.detail.silent)) $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+        if (!$('ageForm')) return; // other pages (e.g. countdown.html) only use the helpers and theme
         $('footerYear').textContent = new Date().getFullYear();
 
-        initTheme();
+        // Re-render results in the new language.
+        document.addEventListener('agecalc:language', () => {
+            if (!$('results').hidden) handleSubmit({ preventDefault() {}, detail: { silent: true } });
+        });
 
         autoFormatDate($('birthDate'));
         autoFormatDate($('calculateDate'));
@@ -547,7 +640,11 @@
         // Remember the last birthday on this device and show it straight away.
         $('forgetMe').addEventListener('click', () => {
             storage.set('lastBirthDate', '');
+            storage.set('lastBirthTime', '');
+            storage.set('lastBirthPlace', '');
             $('birthDate').value = '';
+            $('birthTime').value = '';
+            $('birthPlace').value = '';
             $('calculateDate').value = '';
             $('forgetMe').hidden = true;
             $('results').hidden = true;
@@ -557,13 +654,15 @@
         const saved = storage.get('lastBirthDate');
         if (saved && parseMMDDYYYY(saved)) {
             $('birthDate').value = saved;
+            $('birthTime').value = storage.get('lastBirthTime') || '';
+            $('birthPlace').value = storage.get('lastBirthPlace') || '';
             handleSubmit({ preventDefault() {}, detail: { silent: true } });
         }
     });
 
     // Exposed for testing from the console.
     window.AgeCalc = {
-        clampedDate, dayDiff, startOfToday, autoFormatDate, formatDate, plural, el, storage, getDatabase, ZODIAC_SYSTEMS,
+        clampedDate, dayDiff, startOfToday, autoFormatDate, zonedTimeToUtc, parseTime, t, unit, applyTheme, formatDate, plural, el, storage, getDatabase, ZODIAC_SYSTEMS,
         parseMMDDYYYY, calculateAge, nextBirthday, getWesternZodiac, getChineseZodiac,
         getVietnameseZodiac, getNativeAmericanZodiac, getVedicZodiac, getMayanZodiac, getIncanZodiac
     };

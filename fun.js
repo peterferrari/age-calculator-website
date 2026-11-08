@@ -52,7 +52,7 @@
     }
 
     // ---------- Live ticker ----------
-    function startTicker(birth) {
+    function startTicker(birth, exact) {
         stopTicker();
         const box = $('liveTicker');
         const tick = () => {
@@ -60,7 +60,7 @@
             box.replaceChildren(
                 el('span', { className: 'ticker-label' }, ['⏱️ You have been alive for about']),
                 el('span', { className: 'ticker-value' }, [`${fmt(seconds)} seconds`]),
-                el('span', { className: 'ticker-note' }, ['Counting from midnight on your birthday'])
+                el('span', { className: 'ticker-note' }, [exact ? 'Counting from your time of birth' : 'Counting from midnight on your birthday. Add your birth time for the exact count.'])
             );
         };
         tick();
@@ -77,8 +77,8 @@
     // ---------- Milestones ----------
     function addDays(date, n) { return new Date(date.getFullYear(), date.getMonth(), date.getDate() + n); }
 
-    function milestoneList(birth) {
-        const t = birth.getTime();
+    function milestoneList(birth, moment) {
+        const t = (moment || birth).getTime();
         const list = [];
         [1000, 2500, 5000, 7500, 10000, 12345, 15000, 17500, 20000, 22222, 25000, 27500, 30000, 33333, 35000]
             .forEach(n => list.push({ label: `${fmt(n)} days old`, date: addDays(birth, n) }));
@@ -124,9 +124,9 @@
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
-    function renderMilestones(birth) {
+    function renderMilestones(birth, moment, exact) {
         const now = new Date();
-        const all = milestoneList(birth);
+        const all = milestoneList(birth, moment);
         const past = all.filter(m => m.date <= now).slice(-2);
         const upcoming = all.filter(m => m.date > now).slice(0, 6);
         const row = (m, isPast) => {
@@ -148,7 +148,7 @@
         };
         $('milestones').replaceChildren(
             el('ul', { className: 'milestone-list' }, [...past.map(m => row(m, true)), ...upcoming.map(m => row(m, false))]),
-            el('p', { className: 'fine-print' }, ['Times assume you were born at midnight.'])
+            el('p', { className: 'fine-print' }, [exact ? 'Times are based on your time of birth, shown in your current time zone.' : 'Times assume you were born at midnight.'])
         );
     }
 
@@ -336,8 +336,7 @@
         const font = '"Segoe UI", system-ui, -apple-system, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#fff';
-        ctx.font = `120px ${font}`;
-        ctx.fillText('🎂', W / 2, 200);
+        drawCake(ctx, W / 2, 230, age.years);
         ctx.font = `bold 92px ${font}`;
         ctx.fillText(`I'm ${age.years} years old`, W / 2, 340);
         ctx.font = `44px ${font}`;
@@ -364,6 +363,51 @@
         ctx.fillText(`Born on a ${birth.toLocaleDateString('en-US', { weekday: 'long' })}`, W / 2, 950);
         ctx.font = `bold 30px ${font}`;
         ctx.fillText('Made with the Age Calculator', W / 2, 1030);
+    }
+
+    // A layered cake with one candle per year (up to 30; older ages get a number topper too).
+    function drawCake(ctx, cx, baseY, years) {
+        const w = 300, layer = 55;
+        ctx.save();
+        ctx.fillStyle = '#fbb6ce';
+        roundRect(ctx, cx - w / 2, baseY - layer, w, layer, 14); ctx.fill();
+        ctx.fillStyle = '#fed7e2';
+        roundRect(ctx, cx - w / 2 + 25, baseY - layer * 2, w - 50, layer, 14); ctx.fill();
+        // Icing drips
+        ctx.fillStyle = '#ffffff';
+        roundRect(ctx, cx - w / 2 + 25, baseY - layer * 2, w - 50, 14, 7); ctx.fill();
+        for (let x = cx - w / 2 + 40; x < cx + w / 2 - 40; x += 28) {
+            ctx.beginPath(); ctx.arc(x, baseY - layer * 2 + 14, 7, 0, Math.PI); ctx.fill();
+        }
+        ctx.fillStyle = '#f6e05e';
+        ctx.fillRect(cx - w / 2 - 15, baseY, w + 30, 10);
+
+        const count = Math.max(1, Math.min(years, 30));
+        const top = baseY - layer * 2;
+        const rows = count > 15 ? 2 : 1;
+        const perRow = Math.ceil(count / rows);
+        const colors = ['#63b3ed', '#68d391', '#f6ad55', '#b794f4', '#fc8181'];
+        let drawn = 0;
+        for (let row = 0; row < rows; row++) {
+            const n = Math.min(perRow, count - drawn);
+            const span = w - 80;
+            for (let i = 0; i < n; i++) {
+                const x = cx - span / 2 + (n === 1 ? span / 2 : (span * i) / (n - 1));
+                const y = top - row * 22;
+                ctx.fillStyle = colors[(drawn + i) % colors.length];
+                ctx.fillRect(x - 4, y - 40, 8, 40);
+                ctx.fillStyle = '#fefcbf';
+                ctx.beginPath(); ctx.ellipse(x, y - 50, 5, 10, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#f6ad55';
+                ctx.beginPath(); ctx.ellipse(x, y - 48, 2.5, 6, 0, 0, Math.PI * 2); ctx.fill();
+            }
+            drawn += n;
+        }
+        ctx.fillStyle = '#97266d';
+        ctx.font = 'bold 34px "Segoe UI", system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(years), cx, baseY - 14);
+        ctx.restore();
     }
 
     function roundRect(ctx, x, y, w, h, r) {
@@ -486,7 +530,7 @@
         const name = $('friendName').value.trim() || 'Your friend';
         const friend = A.parseMMDDYYYY($('friendDate').value);
         if (!state) { out.replaceChildren(el('p', { className: 'error' }, ['Calculate your own age first.'])); return; }
-        if (!friend) { out.replaceChildren(el('p', { className: 'error' }, ['Please enter your friend’s birthday as MM/DD/YYYY.'])); return; }
+        if (!friend) { out.replaceChildren(el('p', { className: 'error' }, ['Please enter your friend’s birthday as MM/DD/YYYY or MMDDYYYY.'])); return; }
         const today = A.startOfToday();
         if (friend > today) { out.replaceChildren(el('p', { className: 'error' }, ['That birthday is in the future.'])); return; }
 
@@ -618,9 +662,11 @@
     document.addEventListener('agecalc:results', e => {
         state = e.detail;
         const { birth, to, isToday, age } = state;
-        if (isToday) startTicker(birth); else stopTicker();
+        const moment = state.birthMoment || birth;
+        const exact = !!(state.hasTime);
+        if (isToday) startTicker(moment, exact); else stopTicker();
         renderBirthdayBanner(birth, to, isToday);
-        renderMilestones(birth);
+        renderMilestones(birth, moment, exact);
         renderPlanets(birth, to);
         renderBody(age);
         renderWorld(birth, age);
