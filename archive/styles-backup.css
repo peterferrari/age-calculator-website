@@ -1,0 +1,714 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Main content */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Calculator section */
+.calculator-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.form-container {
+    padding: 2rem;
+}
+
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #4a5568;
+    font-size: 1.8rem;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.input-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+button[type="submit"] {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* Results section */
+.results-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    padding: 2rem;
+    animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Age display */
+.age-display {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.age-display h2 {
+    color: #4a5568;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+.age-result {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    line-height: 1.8;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Zodiac section */
+.zodiac-section {
+    margin-bottom: 2rem;
+}
+
+.zodiac-section h3 {
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.zodiac-hint {
+    color: #718096;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-style: italic;
+}
+
+.zodiac-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.zodiac-card {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.zodiac-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.zodiac-card.clickable {
+    cursor: pointer;
+    border-left: 4px solid #667eea;
+}
+
+.zodiac-card.clickable:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    border-left-color: #5a67d8;
+}
+
+.zodiac-card.clickable::after {
+    content: "🔍";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.zodiac-card h4 {
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.zodiac-card .zodiac-sign {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+.zodiac-card small {
+    color: #718096;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+/* Famous people and events */
+.famous-section, .events-section, .awards-section {
+    margin-bottom: 2rem;
+}
+
+.famous-section h3, .events-section h3, .awards-section h3 {
+    color: #4a5568;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.famous-list, .events-list, .awards-list {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+.famous-list ul, .events-list ul, .awards-list ul {
+    list-style: none;
+}
+
+.famous-list li, .events-list li, .awards-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+    color: #4a5568;
+}
+
+.famous-list li:last-child, .events-list li:last-child, .awards-list li:last-child {
+    border-bottom: none;
+}
+
+.famous-list li:before, .events-list li:before {
+    content: "• ";
+    color: #667eea;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.awards-list li:before {
+    content: "🏆 ";
+    margin-right: 0.5rem;
+}
+
+/* Single item display styles */
+.famous-list.single-item, .events-list.single-item {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+    border-left: 4px solid #4a90e2;
+    font-size: 1.1rem;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.famous-list.single-item ul, .events-list.single-item ul {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.famous-list.single-item li, .events-list.single-item li {
+    border-bottom: none;
+    padding: 1rem;
+    font-weight: 500;
+    color: #2c5aa0;
+    line-height: 1.5;
+}
+
+.famous-list.single-item li:before {
+    content: "🎆 ";
+    font-size: 1.2rem;
+}
+
+.events-list.single-item li:before {
+    content: "✨ ";
+    font-size: 1.2rem;
+}
+
+/* Refresh hint styling */
+.refresh-hint {
+    color: #718096;
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.refresh-hint:hover {
+    opacity: 1;
+    color: #4a5568;
+    transition: all 0.2s ease;
+}
+
+/* Try Again button styling */
+.try-again-btn {
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 0.5rem auto;
+    display: block;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.try-again-btn:hover {
+    background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+}
+
+.try-again-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: white;
+    opacity: 0.8;
+    margin-top: auto;
+}
+
+/* Error messages */
+.error {
+    background: #fed7d7;
+    color: #c53030;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    border-left: 4px solid #c53030;
+}
+
+/* Loading state */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #718096;
+    font-size: 1.1rem;
+}
+
+.loading:before {
+    content: "⏳ ";
+    margin-right: 0.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    header p {
+        font-size: 1rem;
+    }
+    
+    .form-container {
+        padding: 1.5rem;
+    }
+    
+    .results-section {
+        padding: 1.5rem;
+    }
+    
+    .zodiac-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .age-result {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .form-container {
+        padding: 1rem;
+    }
+    
+    .results-section {
+        padding: 1rem;
+    }
+    
+    .zodiac-card, .famous-list, .events-list, .awards-list {
+        padding: 1rem;
+    }
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideInUp 0.3s ease;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    z-index: 1001;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close:hover,
+.close:focus {
+    color: #667eea;
+    text-decoration: none;
+}
+
+#modalBody {
+    padding: 2rem;
+    line-height: 1.6;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 15px 15px 0 0;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-header .zodiac-symbol {
+    font-size: 2rem;
+}
+
+.zodiac-details {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.zodiac-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.zodiac-info-card {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+}
+
+.zodiac-info-card h4 {
+    color: #4a5568;
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+}
+
+.zodiac-description {
+    color: #4a5568;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+}
+
+.traits-section {
+    margin: 1.5rem 0;
+}
+
+.traits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.traits-positive,
+.traits-negative {
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.traits-positive {
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+    border-left: 3px solid #38a169;
+}
+
+.traits-negative {
+    background: linear-gradient(135deg, #fffaf0 0%, #fed7cc 100%);
+    border-left: 3px solid #e53e3e;
+}
+
+.traits-positive h4 {
+    color: #38a169;
+    margin: 0 0 0.5rem 0;
+}
+
+.traits-negative h4 {
+    color: #e53e3e;
+    margin: 0 0 0.5rem 0;
+}
+
+.traits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.traits-list li {
+    padding: 0.2rem 0;
+    color: #4a5568;
+}
+
+.traits-positive .traits-list li:before {
+    content: "✓ ";
+    color: #38a169;
+    font-weight: bold;
+}
+
+.traits-negative .traits-list li:before {
+    content: "⚠ ";
+    color: #e53e3e;
+}
+
+.compatibility-section {
+    margin: 1.5rem 0;
+}
+
+.compatibility-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.compatibility-tag {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile modal adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        max-height: 85%;
+    }
+    
+    #modalBody {
+        padding: 1.5rem;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .zodiac-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .traits-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .compatibility-list {
+        justify-content: center;
+    }
+}
+
+/* Try Again Button Styles */
+.try-again-btn {
+    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(56, 161, 105, 0.2);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.try-again-btn:hover {
+    background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(56, 161, 105, 0.3);
+}
+
+.try-again-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(56, 161, 105, 0.2);
+}
+
+.try-again-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.2);
+}
